@@ -54,6 +54,9 @@ TXA ;transfer X to accumulator
 TXS ;transfer X to stack pointer
 TYA ;transfer Y to accumulator
 
+EOR ;exclusive or
+ASL ;arithmetic shift left
+
 ;VCS Memory map
 $00 - $7F ;TIA registers
 $80 - $FF ;memory addresses for PIA RAM
@@ -62,13 +65,15 @@ $FFFC ;Reset vector
 $FFFE ;interrupt break
 
 ;how to set horizontal position
-;1: wait for a new scanline (sta WSYNC)
-;2: wait (X+68)/15 CPU clock cycles and keep the remainder
-;3: use the remainder as the "Fine" offset
-;4: write to RESP0/P1 to fix the low resolution position (multiple of 15)
-;5: write to HMP0/P1 to set the fine adjustment (-8 to +7 pixels)
-;6: wait for next scanline (sta WSYNC)
-;7: write to HMOVE to apply changes
+;load a register with desired x position
+;wait for a new scanline (sta WSYNC)
+;clear old horizontal position by writing to HMCLR
+;wait (X+68)/15 CPU clock cycles and keep the remainder
+;use the remainder as the "Fine" offset
+;write to RESP0/P1 to fix the low resolution position (multiple of 15)
+;write to HMP0/P1 to set the fine adjustment (-8 to +7 pixels)
+;wait for next scanline (sta WSYNC)
+;write to HMOVE to apply changes
 
 
 
