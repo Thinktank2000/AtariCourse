@@ -3,6 +3,8 @@
 
 ;Place makefile into project directory and assembly using the command "make all"
 
+;(x+68)/3 clock cycles with X being the horizontal position you want your sprite to be
+
 LDX ;loads a value into the X register
 LDA ;loads a value into the A register
 LDY ;loads a value into the Y register
