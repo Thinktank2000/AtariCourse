@@ -14,11 +14,11 @@ P0XPos byte         ;Player 0 X coordinate variable
 reset:
     CLEAN_START
 
-    ldx #$00        ;black background colour
+    ldx #$A8        ;black background colour
     stx COLUBK
 
 ;initialize variables
-    lda #50
+    lda #20
     sta P0XPos
 
 
@@ -102,8 +102,17 @@ DrawBitmap
     lda #0
     sta VBLANK
 
-    ;increment X coordinate for sweeping animation
-    inc P0XPos
+    ;increment X coordinate for sweeping animation (only if the current x coordinate is between 40 and 80)
+    lda P0XPos      ;load A with the current P0 X position
+    cmp #100        ;compare the value with 80
+    bpl ResetXPos   ;if A is greater then reset the position
+    jmp IncXPos     ;else, increment the X position
+ResetXPos:
+    lda #20
+    sta P0XPos      ;reset the player position to 40
+IncXPos:
+    inc P0XPos      ;increment
+
 
     ;loop next frame
     jmp StartFrame

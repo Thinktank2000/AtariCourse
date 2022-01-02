@@ -418,11 +418,11 @@
      14  f008		       d0 fb		      bne	.CLEAR_STACK
      15  f00a
      16  f00a
-     17  f00a		       a2 00		      ldx	#$00	;black background colour
+     17  f00a		       a2 a8		      ldx	#$A8	;black background colour
      18  f00c		       86 09		      stx	COLUBK
      19  f00e
      20  f00e							;initialize variables
-     21  f00e		       a9 32		      lda	#50
+     21  f00e		       a9 14		      lda	#20
      22  f010		       85 80		      sta	P0XPos
      23  f012
      24  f012
@@ -667,10 +667,10 @@
      73  f0ff
      74  f0ff		       a0 08		      ldy	#8	;counter to draw 8 bitmap rows
      75  f101				   DrawBitmap
-     76  f101		       b9 55 f2 	      lda	P0Bitmap,Y	;load slice of bitmap
+     76  f101		       b9 62 f2 	      lda	P0Bitmap,Y	;load slice of bitmap
      77  f104		       85 1b		      sta	GRP0	;set graphics for player 0
      78  f106
-     79  f106		       b9 5d f2 	      lda	P0Colour,Y
+     79  f106		       b9 6a f2 	      lda	P0Colour,Y
      80  f109		       85 06		      sta	COLUP0	;set colour for player 0
      81  f10b
      82  f10b		       85 02		      sta	WSYNC	;wait for next scanline
@@ -1000,35 +1000,44 @@
     102  f24c		       a9 00		      lda	#0
     103  f24e		       85 01		      sta	VBLANK
     104  f250
-    105  f250							;increment X coordinate for sweeping animation
-    106  f250		       e6 80		      inc	P0XPos
-    107  f252
-    108  f252							;loop next frame
-    109  f252		       4c 12 f0 	      jmp	StartFrame
-    110  f255
-    111  f255							;player graphics bitmap
-    112  f255
-    113  f255				   P0Bitmap
-    114  f255		       00		      .byte.b	#%00000000
-    115  f256		       10		      .byte.b	#%00010000
-    116  f257		       08		      .byte.b	#%00001000
-    117  f258		       1c		      .byte.b	#%00011100
-    118  f259		       36		      .byte.b	#%00110110
-    119  f25a		       2e		      .byte.b	#%00101110
-    120  f25b		       3e		      .byte.b	#%00111110
-    121  f25c		       1c		      .byte.b	#%00011100
-    122  f25d
-    123  f25d				   P0Colour
-    124  f25d		       00		      .byte.b	#$00
-    125  f25e		       02		      .byte.b	#$02
-    126  f25f		       02		      .byte.b	#$02
-    127  f260		       52		      .byte.b	#$52
-    128  f261		       52		      .byte.b	#$52
-    129  f262		       52		      .byte.b	#$52
-    130  f263		       52		      .byte.b	#$52
-    131  f264		       52		      .byte.b	#$52
-    132  f265
-    133  f265							;end of rom
-    134  fffc					      org	$FFFC
-    135  fffc		       00 f0		      .word.w	reset
-    136  fffe		       00 f0		      .word.w	reset
+    105  f250							;increment X coordinate for sweeping animation (only if the current x coordinate is between 40 and 80)
+    106  f250		       a5 80		      lda	P0XPos	;load A with the current P0 X position
+    107  f252		       c9 64		      cmp	#100	;compare the value with 80
+    108  f254		       10 03		      bpl	ResetXPos	;if A is greater then reset the position
+    109  f256		       4c 5d f2 	      jmp	IncXPos	;else, increment the X position
+    110  f259				   ResetXPos
+    111  f259		       a9 14		      lda	#20
+    112  f25b		       85 80		      sta	P0XPos	;reset the player position to 40
+    113  f25d				   IncXPos
+    114  f25d		       e6 80		      inc	P0XPos	;increment
+    115  f25f
+    116  f25f
+    117  f25f							;loop next frame
+    118  f25f		       4c 12 f0 	      jmp	StartFrame
+    119  f262
+    120  f262							;player graphics bitmap
+    121  f262
+    122  f262				   P0Bitmap
+    123  f262		       00		      .byte.b	#%00000000
+    124  f263		       10		      .byte.b	#%00010000
+    125  f264		       08		      .byte.b	#%00001000
+    126  f265		       1c		      .byte.b	#%00011100
+    127  f266		       36		      .byte.b	#%00110110
+    128  f267		       2e		      .byte.b	#%00101110
+    129  f268		       3e		      .byte.b	#%00111110
+    130  f269		       1c		      .byte.b	#%00011100
+    131  f26a
+    132  f26a				   P0Colour
+    133  f26a		       00		      .byte.b	#$00
+    134  f26b		       02		      .byte.b	#$02
+    135  f26c		       02		      .byte.b	#$02
+    136  f26d		       52		      .byte.b	#$52
+    137  f26e		       52		      .byte.b	#$52
+    138  f26f		       52		      .byte.b	#$52
+    139  f270		       52		      .byte.b	#$52
+    140  f271		       52		      .byte.b	#$52
+    141  f272
+    142  f272							;end of rom
+    143  fffc					      org	$FFFC
+    144  fffc		       00 f0		      .word.w	reset
+    145  fffe		       00 f0		      .word.w	reset
