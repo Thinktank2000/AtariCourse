@@ -1,9 +1,7 @@
 ;Processor = MOS 6507
 ;Graphics chip = TIA (Television Interface Adapter)
 
-;Place makefile into project directory and assembly using the command "make all"
-
-;(x+68)/15 clock cycles with X being the horizontal position you want your sprite to be (save the remainder for fine positioning)
+;Place makefile into project directory and assemble using the command "make"
 
 LDX ;loads a value into the X register
 LDA ;loads a value into the A register
@@ -62,5 +60,16 @@ $80 - $FF ;memory addresses for PIA RAM
 $F000 - $FFFF ;ROM space
 $FFFC ;Reset vector
 $FFFE ;interrupt break
+
+;how to set horizontal position
+;1: wait for a new scanline (sta WSYNC)
+;2: wait (X+68)/15 CPU clock cycles and keep the remainder
+;3: use the remainder as the "Fine" offset
+;4: write to RESP0/P1 to fix the low resolution position (multiple of 15)
+;5: write to HMP0/P1 to set the fine adjustment (-8 to +7 pixels)
+;6: wait for next scanline (sta WSYNC)
+;7: write to HMOVE to apply changes
+
+
 
 
