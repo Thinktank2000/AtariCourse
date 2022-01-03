@@ -30,6 +30,10 @@ N=1 ;if the sign bit (most significant bit) is 1 set the N flag to 1, otherwise 
 
 JMP ;jump to another ROM address
 
+;push and pop
+PHA ;push acc to stack
+PLA ;pop top of stack to acc
+
 ;branches are similar to conditional jumps in x86
 
 BCC ;branch on carry clear         C=0
