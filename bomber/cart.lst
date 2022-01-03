@@ -1,93 +1,93 @@
-------- FILE bomber.asm LEVEL 1 PASS 1
-      1  0000					      processor	6502
-      2  0000 ????
-      3  0000 ????						;include required files
-------- FILE vcs.h LEVEL 2 PASS 1
-      0  0000 ????				      include	"vcs.h"
-      1  0000 ????						; VCS.H
-      2  0000 ????						; Version 1.07, 08/OCT/2021
-      3  0000 ????
-      4  0000 ????	       00 6b	   VERSION_VCS =	107
-      5  0000 ????
-      6  0000 ????						; THIS IS *THE* "STANDARD" VCS.H
-      7  0000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
-      8  0000 ????						; The latest version can be found at https://dasm-assembler.github.io/
-      9  0000 ????						;
-     10  0000 ????						; This file defines hardware registers and memory mapping for the
-     11  0000 ????						; Atari 2600. It is distributed as a companion machine-specific support package
-     12  0000 ????						; for the DASM compiler. Updates to this file, DASM, and associated tools are
-     13  0000 ????						; available at at https://dasm-assembler.github.io/
-     14  0000 ????						;
-     15  0000 ????						; Many thanks to the people who have contributed. If you find an issue with the
-     16  0000 ????						; contents, or would like ot add something, please report as an issue at...
-     17  0000 ????						; https://github.com/dasm-assembler/dasm/issues
-     18  0000 ????
-     19  0000 ????						;
-     20  0000 ????						; Latest Revisions...
-     21  0000 ????						; 1.07  08/OCT/2021	 Added timer interrupt registers
-     22  0000 ????						; 1.06  05/SEP/2020	 Modified header/license and links to new versions
-     23  0000 ????						; 1.05  13/NOV/2003	  - Correction to 1.04 - now functions as requested by MR.
-     24  0000 ????						;			  - Added VERSION_VCS equate (which will reflect 100x version #)
-     25  0000 ????						;			    This will allow conditional code to verify VCS.H being
-     26  0000 ????						;			    used for code assembly.
-     27  0000 ????						; 1.04  12/NOV/2003	 Added TIA_BASE_WRITE_ADDRESS and TIA_BASE_READ_ADDRESS for
-     28  0000 ????						;			 convenient disassembly/reassembly compatibility for hardware
-     29  0000 ????						;			 mirrored reading/writing differences.	This is more a
-     30  0000 ????						;			 readability issue, and binary compatibility with disassembled
-     31  0000 ????						;			 and reassembled sources.  Per Manuel Rotschkar's suggestion.
-     32  0000 ????						; 1.03  12/MAY/2003	 Added SEG segment at end of file to fix old-code compatibility
-     33  0000 ????						;			 which was broken by the use of segments in this file, as
-     34  0000 ????						;			 reported by Manuel Polik on [stella] 11/MAY/2003
-     35  0000 ????						; 1.02  22/MAR/2003	 Added TIMINT($285)
-     36  0000 ????						; 1.01 		 Constant offset added to allow use for 3F-style bankswitching
-     37  0000 ????						;			  - define TIA_BASE_ADDRESS as $40 for Tigervision carts, otherwise
-     38  0000 ????						;			    it is safe to leave it undefined, and the base address will
-     39  0000 ????						;			    be set to 0.  Thanks to Eckhard Stolberg for the suggestion.
-     40  0000 ????						;			    Note, may use -DLABEL=EXPRESSION to define TIA_BASE_ADDRESS
-     41  0000 ????						;			  - register definitions are now generated through assignment
-     42  0000 ????						;			    in uninitialised segments.	This allows a changeable base
-     43  0000 ????						;			    address architecture.
-     44  0000 ????						; 1.0	 22/MAR/2003	 Initial release
-     45  0000 ????
-     46  0000 ????
-     47  0000 ????						;-------------------------------------------------------------------------------
-     48  0000 ????
-     49  0000 ????						; TIA_BASE_ADDRESS
-     50  0000 ????						; The TIA_BASE_ADDRESS defines the base address of access to TIA registers.
-     51  0000 ????						; Normally 0, the base address should (externally, before including this file)
-     52  0000 ????						; be set to $40 when creating 3F-bankswitched (and other?) cartridges.
-     53  0000 ????						; The reason is that this bankswitching scheme treats any access to locations
-     54  0000 ????						; < $40 as a bankswitch.
-     55  0000 ????
-     56  0000 ????				      IFNCONST	TIA_BASE_ADDRESS
-     57  0000 ????	       00 00	   TIA_BASE_ADDRESS =	0
-     58  0000 ????				      ENDIF
-     59  0000 ????
-     60  0000 ????						; Note: The address may be defined on the command-line using the -D switch, eg:
-     61  0000 ????						; dasm.exe code.asm -DTIA_BASE_ADDRESS=$40 -f3 -v5 -ocode.bin
-     62  0000 ????						; *OR* by declaring the label before including this file, eg:
-     63  0000 ????						; TIA_BASE_ADDRESS = $40
-     64  0000 ????						;   include "vcs.h"
-     65  0000 ????
-     66  0000 ????						; Alternate read/write address capability - allows for some disassembly compatibility
-     67  0000 ????						; usage ; to allow reassembly to binary perfect copies).  This is essentially catering
-     68  0000 ????						; for the mirrored ROM hardware registers.
-     69  0000 ????
-     70  0000 ????						; Usage: As per above, define the TIA_BASE_READ_ADDRESS and/or TIA_BASE_WRITE_ADDRESS
-     71  0000 ????						; using the -D command-line switch, as required.  If the addresses are not defined,
-     72  0000 ????						; they defaut to the TIA_BASE_ADDRESS.
-     73  0000 ????
-     74  0000 ????				      IFNCONST	TIA_BASE_READ_ADDRESS
-     75  0000 ????	       00 00	   TIA_BASE_READ_ADDRESS =	TIA_BASE_ADDRESS
-     76  0000 ????				      ENDIF
-     77  0000 ????
-     78  0000 ????				      IFNCONST	TIA_BASE_WRITE_ADDRESS
-     79  0000 ????	       00 00	   TIA_BASE_WRITE_ADDRESS =	TIA_BASE_ADDRESS
-     80  0000 ????				      ENDIF
-     81  0000 ????
-     82  0000 ????						;-------------------------------------------------------------------------------
-     83  0000 ????
-     84 U0000 ????				      SEG.U	TIA_REGISTERS_WRITE
+------- FILE bomber.asm LEVEL 1 PASS 2
+      1  fffe					      processor	6502
+      2  10000 ????
+      3  10000 ????						;include required files
+------- FILE vcs.h LEVEL 2 PASS 2
+      0  10000 ????				       include	"vcs.h"
+      1  10000 ????						; VCS.H
+      2  10000 ????						; Version 1.07, 08/OCT/2021
+      3  10000 ????
+      4  10000 ????		00 6b	    VERSION_VCS =	107
+      5  10000 ????
+      6  10000 ????						; THIS IS *THE* "STANDARD" VCS.H
+      7  10000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
+      8  10000 ????						; The latest version can be found at https://dasm-assembler.github.io/
+      9  10000 ????						;
+     10  10000 ????						; This file defines hardware registers and memory mapping for the
+     11  10000 ????						; Atari 2600. It is distributed as a companion machine-specific support package
+     12  10000 ????						; for the DASM compiler. Updates to this file, DASM, and associated tools are
+     13  10000 ????						; available at at https://dasm-assembler.github.io/
+     14  10000 ????						;
+     15  10000 ????						; Many thanks to the people who have contributed. If you find an issue with the
+     16  10000 ????						; contents, or would like ot add something, please report as an issue at...
+     17  10000 ????						; https://github.com/dasm-assembler/dasm/issues
+     18  10000 ????
+     19  10000 ????						;
+     20  10000 ????						; Latest Revisions...
+     21  10000 ????						; 1.07  08/OCT/2021	 Added timer interrupt registers
+     22  10000 ????						; 1.06  05/SEP/2020	 Modified header/license and links to new versions
+     23  10000 ????						; 1.05  13/NOV/2003	  - Correction to 1.04 - now functions as requested by MR.
+     24  10000 ????						;			  - Added VERSION_VCS equate (which will reflect 100x version #)
+     25  10000 ????						;			    This will allow conditional code to verify VCS.H being
+     26  10000 ????						;			    used for code assembly.
+     27  10000 ????						; 1.04  12/NOV/2003	 Added TIA_BASE_WRITE_ADDRESS and TIA_BASE_READ_ADDRESS for
+     28  10000 ????						;			 convenient disassembly/reassembly compatibility for hardware
+     29  10000 ????						;			 mirrored reading/writing differences.	This is more a
+     30  10000 ????						;			 readability issue, and binary compatibility with disassembled
+     31  10000 ????						;			 and reassembled sources.  Per Manuel Rotschkar's suggestion.
+     32  10000 ????						; 1.03  12/MAY/2003	 Added SEG segment at end of file to fix old-code compatibility
+     33  10000 ????						;			 which was broken by the use of segments in this file, as
+     34  10000 ????						;			 reported by Manuel Polik on [stella] 11/MAY/2003
+     35  10000 ????						; 1.02  22/MAR/2003	 Added TIMINT($285)
+     36  10000 ????						; 1.01 		 Constant offset added to allow use for 3F-style bankswitching
+     37  10000 ????						;			  - define TIA_BASE_ADDRESS as $40 for Tigervision carts, otherwise
+     38  10000 ????						;			    it is safe to leave it undefined, and the base address will
+     39  10000 ????						;			    be set to 0.  Thanks to Eckhard Stolberg for the suggestion.
+     40  10000 ????						;			    Note, may use -DLABEL=EXPRESSION to define TIA_BASE_ADDRESS
+     41  10000 ????						;			  - register definitions are now generated through assignment
+     42  10000 ????						;			    in uninitialised segments.	This allows a changeable base
+     43  10000 ????						;			    address architecture.
+     44  10000 ????						; 1.0	 22/MAR/2003	 Initial release
+     45  10000 ????
+     46  10000 ????
+     47  10000 ????						;-------------------------------------------------------------------------------
+     48  10000 ????
+     49  10000 ????						; TIA_BASE_ADDRESS
+     50  10000 ????						; The TIA_BASE_ADDRESS defines the base address of access to TIA registers.
+     51  10000 ????						; Normally 0, the base address should (externally, before including this file)
+     52  10000 ????						; be set to $40 when creating 3F-bankswitched (and other?) cartridges.
+     53  10000 ????						; The reason is that this bankswitching scheme treats any access to locations
+     54  10000 ????						; < $40 as a bankswitch.
+     55  10000 ????
+     56  10000 ????			   -	       IFNCONST	TIA_BASE_ADDRESS
+     57  10000 ????			   -TIA_BASE_ADDRESS =	0
+     58  10000 ????				       ENDIF
+     59  10000 ????
+     60  10000 ????						; Note: The address may be defined on the command-line using the -D switch, eg:
+     61  10000 ????						; dasm.exe code.asm -DTIA_BASE_ADDRESS=$40 -f3 -v5 -ocode.bin
+     62  10000 ????						; *OR* by declaring the label before including this file, eg:
+     63  10000 ????						; TIA_BASE_ADDRESS = $40
+     64  10000 ????						;   include "vcs.h"
+     65  10000 ????
+     66  10000 ????						; Alternate read/write address capability - allows for some disassembly compatibility
+     67  10000 ????						; usage ; to allow reassembly to binary perfect copies).  This is essentially catering
+     68  10000 ????						; for the mirrored ROM hardware registers.
+     69  10000 ????
+     70  10000 ????						; Usage: As per above, define the TIA_BASE_READ_ADDRESS and/or TIA_BASE_WRITE_ADDRESS
+     71  10000 ????						; using the -D command-line switch, as required.  If the addresses are not defined,
+     72  10000 ????						; they defaut to the TIA_BASE_ADDRESS.
+     73  10000 ????
+     74  10000 ????			   -	       IFNCONST	TIA_BASE_READ_ADDRESS
+     75  10000 ????			   -TIA_BASE_READ_ADDRESS =	TIA_BASE_ADDRESS
+     76  10000 ????				       ENDIF
+     77  10000 ????
+     78  10000 ????			   -	       IFNCONST	TIA_BASE_WRITE_ADDRESS
+     79  10000 ????			   -TIA_BASE_WRITE_ADDRESS =	TIA_BASE_ADDRESS
+     80  10000 ????				       ENDIF
+     81  10000 ????
+     82  10000 ????						;-------------------------------------------------------------------------------
+     83  10000 ????
+     84 U002d ????				      SEG.U	TIA_REGISTERS_WRITE
      85 U0000					      ORG	TIA_BASE_WRITE_ADDRESS
      86 U0000
      87 U0000							; DO NOT CHANGE THE RELATIVE ORDERING OF REGISTERS!
@@ -140,7 +140,7 @@
     134 U002d
     135 U002d							;-------------------------------------------------------------------------------
     136 U002d
-    137 U0000 ????				      SEG.U	TIA_REGISTERS_READ
+    137 U000e ????				      SEG.U	TIA_REGISTERS_READ
     138 U0000					      ORG	TIA_BASE_READ_ADDRESS
     139 U0000
     140 U0000							;					     bit 7   bit 6
@@ -161,7 +161,7 @@
     155 U000e
     156 U000e							;-------------------------------------------------------------------------------
     157 U000e
-    158 U0000 ????				      SEG.U	RIOT
+    158 U02a0 ????				      SEG.U	RIOT
     159 U0280					      ORG	$280
     160 U0280
     161 U0280							; RIOT MEMORY MAP
@@ -219,7 +219,7 @@
     213  0000 ????
     214  0000 ????						; EOF
 ------- FILE bomber.asm
-------- FILE macro.h LEVEL 2 PASS 1
+------- FILE macro.h LEVEL 2 PASS 2
       0  0000 ????				      include	"macro.h"
       1  0000 ????						; MACRO.H
       2  0000 ????						; Version 1.09, 05/SEP/2020
@@ -394,19 +394,28 @@
 ------- FILE bomber.asm
       6  0000 ????
       7  0000 ????						;segment for uninitialized variables starting at $80
-      8 U0000 ????				      seg.u	variables
+      8 U008c ????				      seg.u	variables
       9 U0080					      org	$80
      10 U0080
-     11 U0080		       00	   P0XPos     byte.b		;player 0 X position
-     12 U0081		       00	   P0YPos     byte.b		;player 0 Y position
-     13 U0082		       00	   P1XPos     byte.b		;player 1 X position
-     14 U0083		       00	   P1YPos     byte.b		;player 1 Y position
-     15 U0084
-     16 U0084							;start of ROM at $F000
-     17  0000 ????				      seg	code
-     18  f000					      org	$F000
-     19  f000
-     20  f000				   reset
+     11 U0080		       00	   JetXPos    byte.b		;player 0 X position
+     12 U0081		       00	   JetYPos    byte.b		;player 0 Y position
+     13 U0082		       00	   BomberXPos byte.b		;player 1 X position
+     14 U0083		       00	   BomberYPos byte.b		;player 1 Y position
+     15 U0084		       00 00	   JetSpritePtr word.w		;Player 0 sprite pointer
+     16 U0086		       00 00	   JetColourPtr word.w		;player 0 colour pointer
+     17 U0088		       00 00	   BomberSpritePtr word.w		;Player 1 sprite pointer
+     18 U008a		       00 00	   BomberColourPtr word.w		;player 1 colour pointer
+     19 U008c
+     20 U008c							;define constants
+     21 U008c		       00 08	   JET_HEIGHT =	8	;Player 0 sprite height
+     22 U008c		       00 08	   BOMBER_HEIGHT =	8	;PLayer 1 sprite height
+     23 U008c
+     24 U008c
+     25 U008c							;start of ROM at $F000
+     26  10000 ????				       seg	code
+     27  f000					      org	$F000
+     28  f000
+     29  f000				   reset
       0  f000					      CLEAN_START		;call macro to reset memory and registers
       1  f000		       78		      sei
       2  f001		       d8		      cld
@@ -423,215 +432,285 @@
      13  f007		       48		      pha
      14  f008		       d0 fb		      bne	.CLEAR_STACK
      15  f00a
-     22  f00a
-     23  f00a							;initialize variables
-     24  f00a		       a9 0a		      lda	#10
-     25  f00c		       85 80		      sta	P0XPos	;P0XPos = 10
-     26  f00e		       a9 3c		      lda	#60
-     27  f010		       85 81		      sta	P0YPos	;P0YPos = 60
-     28  f012
-     29  f012							;start main display loop
-     30  f012				   StartFrame
-     31  f012
-     32  f012							;display VSYNC and VBLANK
-     33  f012		       a9 02		      lda	#2
-     34  f014		       85 00		      sta	VSYNC
-     35  f016		       85 01		      sta	VBLANK
-     36  f018
-     37  f018							;generate 3 lines of VSYNC
-     38  f018					      REPEAT	3
-     39  f018		       85 02		      sta	WSYNC
-     38  f018					      REPEND
-     39  f01a		       85 02		      sta	WSYNC
-     38  f01a					      REPEND
-     39  f01c		       85 02		      sta	WSYNC
-     40  f01e					      REPEND
-     41  f01e
-     42  f01e							;turn off VSYNC
-     43  f01e		       a9 00		      lda	#0
-     44  f020		       85 00		      sta	VSYNC
-     45  f022
-     46  f022							;generate 37 lines of VBLANK
-     47  f022					      REPEAT	37
-     48  f022		       85 02		      sta	WSYNC
-     47  f022					      REPEND
-     48  f024		       85 02		      sta	WSYNC
-     47  f024					      REPEND
-     48  f026		       85 02		      sta	WSYNC
-     47  f026					      REPEND
-     48  f028		       85 02		      sta	WSYNC
-     47  f028					      REPEND
-     48  f02a		       85 02		      sta	WSYNC
-     47  f02a					      REPEND
-     48  f02c		       85 02		      sta	WSYNC
-     47  f02c					      REPEND
-     48  f02e		       85 02		      sta	WSYNC
-     47  f02e					      REPEND
-     48  f030		       85 02		      sta	WSYNC
-     47  f030					      REPEND
-     48  f032		       85 02		      sta	WSYNC
-     47  f032					      REPEND
-     48  f034		       85 02		      sta	WSYNC
-     47  f034					      REPEND
-     48  f036		       85 02		      sta	WSYNC
-     47  f036					      REPEND
-     48  f038		       85 02		      sta	WSYNC
-     47  f038					      REPEND
-     48  f03a		       85 02		      sta	WSYNC
-     47  f03a					      REPEND
-     48  f03c		       85 02		      sta	WSYNC
-     47  f03c					      REPEND
-     48  f03e		       85 02		      sta	WSYNC
-     47  f03e					      REPEND
-     48  f040		       85 02		      sta	WSYNC
-     47  f040					      REPEND
-     48  f042		       85 02		      sta	WSYNC
-     47  f042					      REPEND
-     48  f044		       85 02		      sta	WSYNC
-     47  f044					      REPEND
-     48  f046		       85 02		      sta	WSYNC
-     47  f046					      REPEND
-     48  f048		       85 02		      sta	WSYNC
-     47  f048					      REPEND
-     48  f04a		       85 02		      sta	WSYNC
-     47  f04a					      REPEND
-     48  f04c		       85 02		      sta	WSYNC
-     47  f04c					      REPEND
-     48  f04e		       85 02		      sta	WSYNC
-     47  f04e					      REPEND
-     48  f050		       85 02		      sta	WSYNC
-     47  f050					      REPEND
-     48  f052		       85 02		      sta	WSYNC
-     47  f052					      REPEND
-     48  f054		       85 02		      sta	WSYNC
-     47  f054					      REPEND
-     48  f056		       85 02		      sta	WSYNC
-     47  f056					      REPEND
-     48  f058		       85 02		      sta	WSYNC
-     47  f058					      REPEND
-     48  f05a		       85 02		      sta	WSYNC
-     47  f05a					      REPEND
-     48  f05c		       85 02		      sta	WSYNC
-     47  f05c					      REPEND
-     48  f05e		       85 02		      sta	WSYNC
-     47  f05e					      REPEND
-     48  f060		       85 02		      sta	WSYNC
-     47  f060					      REPEND
-     48  f062		       85 02		      sta	WSYNC
-     47  f062					      REPEND
-     48  f064		       85 02		      sta	WSYNC
-     47  f064					      REPEND
-     48  f066		       85 02		      sta	WSYNC
-     47  f066					      REPEND
-     48  f068		       85 02		      sta	WSYNC
-     47  f068					      REPEND
-     48  f06a		       85 02		      sta	WSYNC
-     49  f06c					      REPEND
-     50  f06c
-     51  f06c							;turn off VBLANK
-     52  f06c		       a9 00		      lda	#0
-     53  f06e		       85 01		      sta	VBLANK
-     54  f070
-     55  f070
-     56  f070							;display 192 visible scanlines
-     57  f070				   VisibleLine
-     58  f070		       a9 84		      lda	#$84
-     59  f072		       85 09		      sta	COLUBK	;set background to pale blue
-     60  f074
-     61  f074		       a9 c2		      lda	#$C2
-     62  f076		       85 08		      sta	COLUPF	;set playfield to green
-     63  f078
-     64  f078		       a5 01		      lda	%00000001
-     65  f07a		       85 0a		      sta	CTRLPF	;enable playfield reflection
-     66  f07c
-     67  f07c		       a9 f0		      lda	#$F0
-     68  f07e		       85 0d		      sta	PF0
-     69  f080							; setting PF0 bit pattern
-     70  f080		       a9 fc		      lda	#$FC
-     71  f082		       85 0e		      sta	PF1
-     72  f084							; setting PF1 bit pattern
-     73  f084		       a9 00		      lda	#0
-     74  f086		       85 0f		      sta	PF2	; setting PF2 bit pattern
-     75  f088
-     76  f088		       a2 c0		      ldx	#192	;X counts the remaining number of scanlines
-     77  f08a				   LineLoop
-     78  f08a		       85 02		      sta	WSYNC
-     79  f08c		       ca		      dex		;X--
-     80  f08d		       d0 fb		      bne	LineLoop	;repeat next visible scanline until finished
-     81  f08f
-     82  f08f							;display 30 lines of overscan
-     83  f08f		       a9 02		      lda	#2
-     84  f091		       85 01		      sta	VBLANK	;turn on VBLANK
-     85  f093
-     86  f093					      REPEAT	30
-     87  f093		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f093					      REPEND
-     87  f095		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f095					      REPEND
-     87  f097		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f097					      REPEND
-     87  f099		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f099					      REPEND
-     87  f09b		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f09b					      REPEND
-     87  f09d		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f09d					      REPEND
-     87  f09f		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f09f					      REPEND
-     87  f0a1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0a1					      REPEND
-     87  f0a3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0a3					      REPEND
-     87  f0a5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0a5					      REPEND
-     87  f0a7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0a7					      REPEND
-     87  f0a9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0a9					      REPEND
-     87  f0ab		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0ab					      REPEND
-     87  f0ad		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0ad					      REPEND
-     87  f0af		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0af					      REPEND
-     87  f0b1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0b1					      REPEND
-     87  f0b3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0b3					      REPEND
-     87  f0b5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0b5					      REPEND
-     87  f0b7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0b7					      REPEND
-     87  f0b9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0b9					      REPEND
-     87  f0bb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0bb					      REPEND
-     87  f0bd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0bd					      REPEND
-     87  f0bf		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0bf					      REPEND
-     87  f0c1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0c1					      REPEND
-     87  f0c3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0c3					      REPEND
-     87  f0c5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0c5					      REPEND
-     87  f0c7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0c7					      REPEND
-     87  f0c9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0c9					      REPEND
-     87  f0cb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     86  f0cb					      REPEND
-     87  f0cd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-     88  f0cf					      REPEND
-     89  f0cf
-     90  f0cf		       a9 00		      lda	#0
-     91  f0d1		       85 01		      sta	VBLANK	;turn off VBLANK
-     92  f0d3
-     93  f0d3							;loop new frame
-     94  f0d3		       4c 12 f0 	      jmp	StartFrame
-     95  f0d6
-     96  f0d6							;end of ROM
-     97  fffc					      org	$FFFC
-     98  fffc		       00 f0		      .word.w	reset
-     99  fffe		       00 f0		      .word.w	reset
+     31  f00a
+     32  f00a							;initialize variables
+     33  f00a		       a9 0a		      lda	#10
+     34  f00c		       85 80		      sta	JetXPos	;JetXPos = 10
+     35  f00e		       a9 3c		      lda	#60
+     36  f010		       85 81		      sta	JetYPos	;JetYPos = 60
+     37  f012		       a9 53		      lda	#83
+     38  f014		       85 83		      sta	BomberYPos	;BomberYPos = 83
+     39  f016		       a9 36		      lda	#54
+     40  f018		       85 82		      sta	BomberXPos	;BomberXPos = 54
+     41  f01a
+     42  f01a							;initialize pointers
+     43  f01a		       a9 fe		      lda	#<JetSprite
+     44  f01c		       85 84		      sta	JetSpritePtr	;low byte pointer to jet sprite lookup table
+     45  f01e		       a9 f0		      lda	#>JetSprite
+     46  f020		       85 85		      sta	JetSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
+     47  f022
+     48  f022		       a9 0e		      lda	#<JetColour
+     49  f024		       85 86		      sta	JetColourPtr	;low byte pointer to jet colour lookup table
+     50  f026		       a9 f1		      lda	#>JetColour
+     51  f028		       85 87		      sta	JetColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
+     52  f02a
+     53  f02a		       a9 06		      lda	#<BomberSprite
+     54  f02c		       85 88		      sta	BomberSpritePtr	;low byte pointer to jet sprite lookup table
+     55  f02e		       a9 f1		      lda	#>BomberSprite
+     56  f030		       85 89		      sta	BomberSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
+     57  f032
+     58  f032		       a9 16		      lda	#<BomberColour
+     59  f034		       85 8a		      sta	BomberColourPtr	;low byte pointer to jet colour lookup table
+     60  f036		       a9 f1		      lda	#>BomberColour
+     61  f038		       85 8b		      sta	BomberColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
+     62  f03a
+     63  f03a
+     64  f03a
+     65  f03a							;start main display loop
+     66  f03a				   StartFrame
+     67  f03a
+     68  f03a							;display VSYNC and VBLANK
+     69  f03a		       a9 02		      lda	#2
+     70  f03c		       85 00		      sta	VSYNC
+     71  f03e		       85 01		      sta	VBLANK
+     72  f040
+     73  f040							;generate 3 lines of VSYNC
+     74  f040					      REPEAT	3
+     75  f040		       85 02		      sta	WSYNC
+     74  f040					      REPEND
+     75  f042		       85 02		      sta	WSYNC
+     74  f042					      REPEND
+     75  f044		       85 02		      sta	WSYNC
+     76  f046					      REPEND
+     77  f046
+     78  f046							;turn off VSYNC
+     79  f046		       a9 00		      lda	#0
+     80  f048		       85 00		      sta	VSYNC
+     81  f04a
+     82  f04a							;generate 37 lines of VBLANK
+     83  f04a					      REPEAT	37
+     84  f04a		       85 02		      sta	WSYNC
+     83  f04a					      REPEND
+     84  f04c		       85 02		      sta	WSYNC
+     83  f04c					      REPEND
+     84  f04e		       85 02		      sta	WSYNC
+     83  f04e					      REPEND
+     84  f050		       85 02		      sta	WSYNC
+     83  f050					      REPEND
+     84  f052		       85 02		      sta	WSYNC
+     83  f052					      REPEND
+     84  f054		       85 02		      sta	WSYNC
+     83  f054					      REPEND
+     84  f056		       85 02		      sta	WSYNC
+     83  f056					      REPEND
+     84  f058		       85 02		      sta	WSYNC
+     83  f058					      REPEND
+     84  f05a		       85 02		      sta	WSYNC
+     83  f05a					      REPEND
+     84  f05c		       85 02		      sta	WSYNC
+     83  f05c					      REPEND
+     84  f05e		       85 02		      sta	WSYNC
+     83  f05e					      REPEND
+     84  f060		       85 02		      sta	WSYNC
+     83  f060					      REPEND
+     84  f062		       85 02		      sta	WSYNC
+     83  f062					      REPEND
+     84  f064		       85 02		      sta	WSYNC
+     83  f064					      REPEND
+     84  f066		       85 02		      sta	WSYNC
+     83  f066					      REPEND
+     84  f068		       85 02		      sta	WSYNC
+     83  f068					      REPEND
+     84  f06a		       85 02		      sta	WSYNC
+     83  f06a					      REPEND
+     84  f06c		       85 02		      sta	WSYNC
+     83  f06c					      REPEND
+     84  f06e		       85 02		      sta	WSYNC
+     83  f06e					      REPEND
+     84  f070		       85 02		      sta	WSYNC
+     83  f070					      REPEND
+     84  f072		       85 02		      sta	WSYNC
+     83  f072					      REPEND
+     84  f074		       85 02		      sta	WSYNC
+     83  f074					      REPEND
+     84  f076		       85 02		      sta	WSYNC
+     83  f076					      REPEND
+     84  f078		       85 02		      sta	WSYNC
+     83  f078					      REPEND
+     84  f07a		       85 02		      sta	WSYNC
+     83  f07a					      REPEND
+     84  f07c		       85 02		      sta	WSYNC
+     83  f07c					      REPEND
+     84  f07e		       85 02		      sta	WSYNC
+     83  f07e					      REPEND
+     84  f080		       85 02		      sta	WSYNC
+     83  f080					      REPEND
+     84  f082		       85 02		      sta	WSYNC
+     83  f082					      REPEND
+     84  f084		       85 02		      sta	WSYNC
+     83  f084					      REPEND
+     84  f086		       85 02		      sta	WSYNC
+     83  f086					      REPEND
+     84  f088		       85 02		      sta	WSYNC
+     83  f088					      REPEND
+     84  f08a		       85 02		      sta	WSYNC
+     83  f08a					      REPEND
+     84  f08c		       85 02		      sta	WSYNC
+     83  f08c					      REPEND
+     84  f08e		       85 02		      sta	WSYNC
+     83  f08e					      REPEND
+     84  f090		       85 02		      sta	WSYNC
+     83  f090					      REPEND
+     84  f092		       85 02		      sta	WSYNC
+     85  f094					      REPEND
+     86  f094
+     87  f094							;turn off VBLANK
+     88  f094		       a9 00		      lda	#0
+     89  f096		       85 01		      sta	VBLANK
+     90  f098
+     91  f098
+     92  f098							;display 192 visible scanlines
+     93  f098				   VisibleLine
+     94  f098		       a9 84		      lda	#$84
+     95  f09a		       85 09		      sta	COLUBK	;set background to pale blue
+     96  f09c
+     97  f09c		       a9 c2		      lda	#$C2
+     98  f09e		       85 08		      sta	COLUPF	;set playfield to green
+     99  f0a0
+    100  f0a0		       a5 01		      lda	%00000001
+    101  f0a2		       85 0a		      sta	CTRLPF	;enable playfield reflection
+    102  f0a4
+    103  f0a4		       a9 f0		      lda	#$F0
+    104  f0a6		       85 0d		      sta	PF0
+    105  f0a8							; setting PF0 bit pattern
+    106  f0a8		       a9 fc		      lda	#$FC
+    107  f0aa		       85 0e		      sta	PF1
+    108  f0ac							; setting PF1 bit pattern
+    109  f0ac		       a9 00		      lda	#0
+    110  f0ae		       85 0f		      sta	PF2	; setting PF2 bit pattern
+    111  f0b0
+    112  f0b0		       a2 c0		      ldx	#192	;X counts the remaining number of scanlines
+    113  f0b2				   LineLoop
+    114  f0b2		       85 02		      sta	WSYNC
+    115  f0b4		       ca		      dex		;X--
+    116  f0b5		       d0 fb		      bne	LineLoop	;repeat next visible scanline until finished
+    117  f0b7
+    118  f0b7							;display 30 lines of overscan
+    119  f0b7		       a9 02		      lda	#2
+    120  f0b9		       85 01		      sta	VBLANK	;turn on VBLANK
+    121  f0bb
+    122  f0bb					      REPEAT	30
+    123  f0bb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0bb					      REPEND
+    123  f0bd		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0bd					      REPEND
+    123  f0bf		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0bf					      REPEND
+    123  f0c1		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0c1					      REPEND
+    123  f0c3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0c3					      REPEND
+    123  f0c5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0c5					      REPEND
+    123  f0c7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0c7					      REPEND
+    123  f0c9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0c9					      REPEND
+    123  f0cb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0cb					      REPEND
+    123  f0cd		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0cd					      REPEND
+    123  f0cf		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0cf					      REPEND
+    123  f0d1		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0d1					      REPEND
+    123  f0d3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0d3					      REPEND
+    123  f0d5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0d5					      REPEND
+    123  f0d7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0d7					      REPEND
+    123  f0d9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0d9					      REPEND
+    123  f0db		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0db					      REPEND
+    123  f0dd		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0dd					      REPEND
+    123  f0df		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0df					      REPEND
+    123  f0e1		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0e1					      REPEND
+    123  f0e3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0e3					      REPEND
+    123  f0e5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0e5					      REPEND
+    123  f0e7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0e7					      REPEND
+    123  f0e9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0e9					      REPEND
+    123  f0eb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0eb					      REPEND
+    123  f0ed		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0ed					      REPEND
+    123  f0ef		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0ef					      REPEND
+    123  f0f1		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0f1					      REPEND
+    123  f0f3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    122  f0f3					      REPEND
+    123  f0f5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    124  f0f7					      REPEND
+    125  f0f7
+    126  f0f7		       a9 00		      lda	#0
+    127  f0f9		       85 01		      sta	VBLANK	;turn off VBLANK
+    128  f0fb
+    129  f0fb							;loop new frame
+    130  f0fb		       4c 3a f0 	      jmp	StartFrame
+    131  f0fe
+    132  f0fe							;ROM lookup tables
+    133  f0fe				   JetSprite
+    134  f0fe		       00		      .byte.b	#%00000000
+    135  f0ff		       44		      .byte.b	#%01000100
+    136  f100		       6c		      .byte.b	#%01101100
+    137  f101		       7c		      .byte.b	#%01111100
+    138  f102		       28		      .byte.b	#%00101000
+    139  f103		       28		      .byte.b	#%00101000
+    140  f104		       10		      .byte.b	#%00010000
+    141  f105		       10		      .byte.b	#%00010000
+    142  f106
+    143  f106				   BomberSprite
+    144  f106		       00		      .byte.b	#%00000000
+    145  f107		       08		      .byte.b	#%00001000
+    146  f108		       14		      .byte.b	#%00010100
+    147  f109		       2a		      .byte.b	#%00101010
+    148  f10a		       2a		      .byte.b	#%00101010
+    149  f10b		       7f		      .byte.b	#%01111111
+    150  f10c		       49		      .byte.b	#%01001001
+    151  f10d		       49		      .byte.b	#%01001001
+    152  f10e
+    153  f10e				   JetColour
+    154  f10e		       40		      .byte.b	#$40
+    155  f10f		       40		      .byte.b	#$40
+    156  f110		       40		      .byte.b	#$40
+    157  f111		       40		      .byte.b	#$40
+    158  f112		       40		      .byte.b	#$40
+    159  f113		       40		      .byte.b	#$40
+    160  f114		       40		      .byte.b	#$40
+    161  f115		       40		      .byte.b	#$40
+    162  f116
+    163  f116				   BomberColour
+    164  f116		       1e		      .byte.b	#$1E
+    165  f117		       1e		      .byte.b	#$1E
+    166  f118		       1e		      .byte.b	#$1E
+    167  f119		       1e		      .byte.b	#$1E
+    168  f11a		       1e		      .byte.b	#$1E
+    169  f11b		       1e		      .byte.b	#$1E
+    170  f11c		       1e		      .byte.b	#$1E
+    171  f11d		       1e		      .byte.b	#$1E
+    172  f11e
+    173  f11e
+    174  f11e
+    175  f11e							;end of ROM
+    176  fffc					      org	$FFFC
+    177  fffc		       00 f0		      .word.w	reset
+    178  fffe		       00 f0		      .word.w	reset

@@ -7,6 +7,13 @@ AUDF0                    0017
 AUDF1                    0018                  
 AUDV0                    0019                  
 AUDV1                    001a                  
+BOMBER_HEIGHT            0008                  
+BomberColour             f116              (R )
+BomberColourPtr          008a              (R )
+BomberSprite             f106              (R )
+BomberSpritePtr          0088              (R )
+BomberXPos               0082              (R )
+BomberYPos               0083              (R )
 COLUBK                   0009              (R )
 COLUP0                   0006                  
 COLUP1                   0007                  
@@ -40,14 +47,17 @@ INPT3                    000b
 INPT4                    000c                  
 INPT5                    000d                  
 INTIM                    0284                  
-LineLoop                 f08a              (R )
+JET_HEIGHT               0008                  
+JetColour                f10e              (R )
+JetColourPtr             0086              (R )
+JetSprite                f0fe              (R )
+JetSpritePtr             0084              (R )
+JetXPos                  0080              (R )
+JetYPos                  0081              (R )
+LineLoop                 f0b2              (R )
 NO_ILLEGAL_OPCODES       0000 ????         (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
-P0XPos                   0080              (R )
-P0YPos                   0081              (R )
-P1XPos                   0082                  
-P1YPos                   0083                  
 PF0                      000d              (R )
 PF1                      000e              (R )
 PF2                      000f              (R )
@@ -62,7 +72,7 @@ RESMP1                   0029
 RESP0                    0010                  
 RESP1                    0011                  
 RSYNC                    0003                  
-StartFrame               f012              (R )
+StartFrame               f03a              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280                  
@@ -85,7 +95,7 @@ VDELP0                   0025
 VDELP1                   0026                  
 VERSION_MACRO            006d                  
 VERSION_VCS              006b                  
-VisibleLine              f070                  
+VisibleLine              f098                  
 VSYNC                    0000              (R )
 WSYNC                    0002              (R )
 --- End of Symbol List.
