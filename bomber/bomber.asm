@@ -18,8 +18,8 @@ BomberSpritePtr word       ;Player 1 sprite pointer
 BomberColourPtr word       ;player 1 colour pointer
 
     ;define constants
-JET_HEIGHT = 8             ;Player 0 sprite height
-BOMBER_HEIGHT = 8          ;PLayer 1 sprite height
+JET_HEIGHT = 9             ;Player 0 sprite height
+BOMBER_HEIGHT = 9          ;PLayer 1 sprite height
 
 
     ;start of ROM at $F000
@@ -32,7 +32,7 @@ reset:
     ;initialize variables
     lda #10
     sta JetXPos      ;JetXPos = 10
-    lda #60
+    lda #5
     sta JetYPos      ;JetYPos = 60
     lda #83
     sta BomberYPos   ;BomberYPos = 83
@@ -89,7 +89,7 @@ StartFrame:
     sta VBLANK
 
 
-    ;display 192 visible scanlines
+    ;display 96 visible scanlines (2 line kernel)
 VisibleLine:
     lda #$84
     sta COLUBK    ;set background to pale blue
@@ -109,9 +109,42 @@ VisibleLine:
     lda #0
     sta PF2       ; setting PF2 bit pattern
 
-    ldx #192      ;X counts the remaining number of scanlines
+    ldx #96      ;X counts the remaining number of scanlines
 LineLoop:
-    sta WSYNC
+InsideJetSprite:
+    txa                     ;transfer x to acc
+    sec                     ;set carry flag for subtraction
+    sbc JetYPos             ;subtract sprite Y coord
+    cmp JET_HEIGHT          ;compare with jet height
+    bcc DrawSpriteP0        ;if result < SpriteHeight call draw routine
+    lda #0                  ;else, load 0
+
+DrawSpriteP0:
+    tay                     ;Load Y so pointer can be worked with
+    lda (JetSpritePtr),Y    ;Load P0 Bitmap data
+    sta WSYNC               ;wait for next scanline
+    sta GRP0                ;set graphics for P0
+    lda (JetColourPtr),Y    ;load P0 Colour data
+    sta COLUP0              ;set colour of P0
+
+InsideBomberSprite:
+    txa                     ;transfer x to acc
+    sec                     ;set carry flag for subtraction
+    sbc BomberYPos             ;subtract sprite Y coord
+    cmp BOMBER_HEIGHT     ;compare with jet height
+    bcc DrawSpriteP1        ;if result < SpriteHeight call draw routine
+    lda #0                  ;else, load 0
+
+DrawSpriteP1:
+    tay                     ;Load Y so pointer can be worked with
+    lda (BomberSpritePtr),Y    ;Load P0 Bitmap data
+    sta WSYNC               ;wait for next scanline
+    sta GRP1                ;set graphics for P0
+    lda (BomberColourPtr),Y    ;load P0 Colour data
+    sta COLUP1              ;set colour of P0
+
+
+
     dex           ;X--
     bne LineLoop  ;repeat next visible scanline until finished
 
@@ -131,44 +164,48 @@ LineLoop:
 
     ;ROM lookup tables
 JetSprite:
-        .byte #%00000000
-        .byte #%01000100
-        .byte #%01101100
-        .byte #%01111100
-        .byte #%00101000
-        .byte #%00101000
-        .byte #%00010000
-        .byte #%00010000
+    .byte #%00000000
+    .byte #%01010100;$1E
+    .byte #%01010100;$1E
+    .byte #%01111100;$1E
+    .byte #%00111000;$1E
+    .byte #%00111000;$1E
+    .byte #%00111000;$1E
+    .byte #%00010000;$1E
+    .byte #%00010000;$1E
 
 BomberSprite:
-        .byte #%00000000
-        .byte #%00001000
-        .byte #%00010100
-        .byte #%00101010
-        .byte #%00101010
-        .byte #%01111111
-        .byte #%01001001
-        .byte #%01001001
+    .byte #%00000000
+    .byte #%00000000
+    .byte #%00001000
+    .byte #%00010100
+    .byte #%00101010
+    .byte #%00101010
+    .byte #%01111111
+    .byte #%01001001
+    .byte #%01001001
 
 JetColour:
-        .byte #$40
-        .byte #$40
-        .byte #$40
-        .byte #$40
-        .byte #$40
-        .byte #$40
-        .byte #$40
-        .byte #$40
+    .byte #$00
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
 
 BomberColour:
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
-        .byte #$1E
+    .byte #$00
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
+    .byte #$1E
 
 
 

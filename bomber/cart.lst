@@ -407,8 +407,8 @@
      18 U008a		       00 00	   BomberColourPtr word.w		;player 1 colour pointer
      19 U008c
      20 U008c							;define constants
-     21 U008c		       00 08	   JET_HEIGHT =	8	;Player 0 sprite height
-     22 U008c		       00 08	   BOMBER_HEIGHT =	8	;PLayer 1 sprite height
+     21 U008c		       00 09	   JET_HEIGHT =	9	;Player 0 sprite height
+     22 U008c		       00 09	   BOMBER_HEIGHT =	9	;PLayer 1 sprite height
      23 U008c
      24 U008c
      25 U008c							;start of ROM at $F000
@@ -436,7 +436,7 @@
      32  f00a							;initialize variables
      33  f00a		       a9 0a		      lda	#10
      34  f00c		       85 80		      sta	JetXPos	;JetXPos = 10
-     35  f00e		       a9 3c		      lda	#60
+     35  f00e		       a9 05		      lda	#5
      36  f010		       85 81		      sta	JetYPos	;JetYPos = 60
      37  f012		       a9 53		      lda	#83
      38  f014		       85 83		      sta	BomberYPos	;BomberYPos = 83
@@ -444,22 +444,22 @@
      40  f018		       85 82		      sta	BomberXPos	;BomberXPos = 54
      41  f01a
      42  f01a							;initialize pointers
-     43  f01a		       a9 fe		      lda	#<JetSprite
+     43  f01a		       a9 26		      lda	#<JetSprite
      44  f01c		       85 84		      sta	JetSpritePtr	;low byte pointer to jet sprite lookup table
-     45  f01e		       a9 f0		      lda	#>JetSprite
+     45  f01e		       a9 f1		      lda	#>JetSprite
      46  f020		       85 85		      sta	JetSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      47  f022
-     48  f022		       a9 0e		      lda	#<JetColour
+     48  f022		       a9 38		      lda	#<JetColour
      49  f024		       85 86		      sta	JetColourPtr	;low byte pointer to jet colour lookup table
      50  f026		       a9 f1		      lda	#>JetColour
      51  f028		       85 87		      sta	JetColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
      52  f02a
-     53  f02a		       a9 06		      lda	#<BomberSprite
+     53  f02a		       a9 2f		      lda	#<BomberSprite
      54  f02c		       85 88		      sta	BomberSpritePtr	;low byte pointer to jet sprite lookup table
      55  f02e		       a9 f1		      lda	#>BomberSprite
      56  f030		       85 89		      sta	BomberSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      57  f032
-     58  f032		       a9 16		      lda	#<BomberColour
+     58  f032		       a9 41		      lda	#<BomberColour
      59  f034		       85 8a		      sta	BomberColourPtr	;low byte pointer to jet colour lookup table
      60  f036		       a9 f1		      lda	#>BomberColour
      61  f038		       85 8b		      sta	BomberColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
@@ -569,7 +569,7 @@
      89  f096		       85 01		      sta	VBLANK
      90  f098
      91  f098
-     92  f098							;display 192 visible scanlines
+     92  f098							;display 96 visible scanlines (2 line kernel)
      93  f098				   VisibleLine
      94  f098		       a9 84		      lda	#$84
      95  f09a		       85 09		      sta	COLUBK	;set background to pale blue
@@ -589,128 +589,165 @@
     109  f0ac		       a9 00		      lda	#0
     110  f0ae		       85 0f		      sta	PF2	; setting PF2 bit pattern
     111  f0b0
-    112  f0b0		       a2 c0		      ldx	#192	;X counts the remaining number of scanlines
+    112  f0b0		       a2 60		      ldx	#96	;X counts the remaining number of scanlines
     113  f0b2				   LineLoop
-    114  f0b2		       85 02		      sta	WSYNC
-    115  f0b4		       ca		      dex		;X--
-    116  f0b5		       d0 fb		      bne	LineLoop	;repeat next visible scanline until finished
-    117  f0b7
-    118  f0b7							;display 30 lines of overscan
-    119  f0b7		       a9 02		      lda	#2
-    120  f0b9		       85 01		      sta	VBLANK	;turn on VBLANK
-    121  f0bb
-    122  f0bb					      REPEAT	30
-    123  f0bb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0bb					      REPEND
-    123  f0bd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0bd					      REPEND
-    123  f0bf		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0bf					      REPEND
-    123  f0c1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0c1					      REPEND
-    123  f0c3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0c3					      REPEND
-    123  f0c5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0c5					      REPEND
-    123  f0c7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0c7					      REPEND
-    123  f0c9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0c9					      REPEND
-    123  f0cb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0cb					      REPEND
-    123  f0cd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0cd					      REPEND
-    123  f0cf		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0cf					      REPEND
-    123  f0d1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0d1					      REPEND
-    123  f0d3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0d3					      REPEND
-    123  f0d5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0d5					      REPEND
-    123  f0d7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0d7					      REPEND
-    123  f0d9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0d9					      REPEND
-    123  f0db		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0db					      REPEND
-    123  f0dd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0dd					      REPEND
-    123  f0df		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0df					      REPEND
-    123  f0e1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0e1					      REPEND
-    123  f0e3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0e3					      REPEND
-    123  f0e5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0e5					      REPEND
-    123  f0e7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0e7					      REPEND
-    123  f0e9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0e9					      REPEND
-    123  f0eb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0eb					      REPEND
-    123  f0ed		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0ed					      REPEND
-    123  f0ef		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0ef					      REPEND
-    123  f0f1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0f1					      REPEND
-    123  f0f3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    122  f0f3					      REPEND
-    123  f0f5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    124  f0f7					      REPEND
-    125  f0f7
-    126  f0f7		       a9 00		      lda	#0
-    127  f0f9		       85 01		      sta	VBLANK	;turn off VBLANK
-    128  f0fb
-    129  f0fb							;loop new frame
-    130  f0fb		       4c 3a f0 	      jmp	StartFrame
-    131  f0fe
-    132  f0fe							;ROM lookup tables
-    133  f0fe				   JetSprite
-    134  f0fe		       00		      .byte.b	#%00000000
-    135  f0ff		       44		      .byte.b	#%01000100
-    136  f100		       6c		      .byte.b	#%01101100
-    137  f101		       7c		      .byte.b	#%01111100
-    138  f102		       28		      .byte.b	#%00101000
-    139  f103		       28		      .byte.b	#%00101000
-    140  f104		       10		      .byte.b	#%00010000
-    141  f105		       10		      .byte.b	#%00010000
-    142  f106
-    143  f106				   BomberSprite
-    144  f106		       00		      .byte.b	#%00000000
-    145  f107		       08		      .byte.b	#%00001000
-    146  f108		       14		      .byte.b	#%00010100
-    147  f109		       2a		      .byte.b	#%00101010
-    148  f10a		       2a		      .byte.b	#%00101010
-    149  f10b		       7f		      .byte.b	#%01111111
-    150  f10c		       49		      .byte.b	#%01001001
-    151  f10d		       49		      .byte.b	#%01001001
-    152  f10e
-    153  f10e				   JetColour
-    154  f10e		       40		      .byte.b	#$40
-    155  f10f		       40		      .byte.b	#$40
-    156  f110		       40		      .byte.b	#$40
-    157  f111		       40		      .byte.b	#$40
-    158  f112		       40		      .byte.b	#$40
-    159  f113		       40		      .byte.b	#$40
-    160  f114		       40		      .byte.b	#$40
-    161  f115		       40		      .byte.b	#$40
-    162  f116
-    163  f116				   BomberColour
-    164  f116		       1e		      .byte.b	#$1E
-    165  f117		       1e		      .byte.b	#$1E
-    166  f118		       1e		      .byte.b	#$1E
-    167  f119		       1e		      .byte.b	#$1E
-    168  f11a		       1e		      .byte.b	#$1E
-    169  f11b		       1e		      .byte.b	#$1E
-    170  f11c		       1e		      .byte.b	#$1E
-    171  f11d		       1e		      .byte.b	#$1E
-    172  f11e
-    173  f11e
-    174  f11e
-    175  f11e							;end of ROM
-    176  fffc					      org	$FFFC
-    177  fffc		       00 f0		      .word.w	reset
-    178  fffe		       00 f0		      .word.w	reset
+    114  f0b2				   InsideJetSprite
+    115  f0b2		       8a		      txa		;transfer x to acc
+    116  f0b3		       38		      sec		;set carry flag for subtraction
+    117  f0b4		       e5 81		      sbc	JetYPos	;subtract sprite Y coord
+    118  f0b6		       c5 09		      cmp	JET_HEIGHT	;compare with jet height
+    119  f0b8		       90 02		      bcc	DrawSpriteP0	;if result < SpriteHeight call draw routine
+    120  f0ba		       a9 00		      lda	#0	;else, load 0
+    121  f0bc
+    122  f0bc				   DrawSpriteP0
+    123  f0bc		       a8		      tay		;Load Y so pointer can be worked with
+    124  f0bd		       b1 84		      lda	(JetSpritePtr),Y	;Load P0 Bitmap data
+    125  f0bf		       85 02		      sta	WSYNC	;wait for next scanline
+    126  f0c1		       85 1b		      sta	GRP0	;set graphics for P0
+    127  f0c3		       b1 86		      lda	(JetColourPtr),Y	;load P0 Colour data
+    128  f0c5		       85 06		      sta	COLUP0	;set colour of P0
+    129  f0c7
+    130  f0c7				   InsideBomberSprite
+    131  f0c7		       8a		      txa		;transfer x to acc
+    132  f0c8		       38		      sec		;set carry flag for subtraction
+    133  f0c9		       e5 83		      sbc	BomberYPos	;subtract sprite Y coord
+    134  f0cb		       c5 09		      cmp	BOMBER_HEIGHT	;compare with jet height
+    135  f0cd		       90 02		      bcc	DrawSpriteP1	;if result < SpriteHeight call draw routine
+    136  f0cf		       a9 00		      lda	#0	;else, load 0
+    137  f0d1
+    138  f0d1				   DrawSpriteP1
+    139  f0d1		       a8		      tay		;Load Y so pointer can be worked with
+    140  f0d2		       b1 88		      lda	(BomberSpritePtr),Y	;Load P0 Bitmap data
+    141  f0d4		       85 02		      sta	WSYNC	;wait for next scanline
+    142  f0d6		       85 1c		      sta	GRP1	;set graphics for P0
+    143  f0d8		       b1 8a		      lda	(BomberColourPtr),Y	;load P0 Colour data
+    144  f0da		       85 07		      sta	COLUP1	;set colour of P0
+    145  f0dc
+    146  f0dc
+    147  f0dc
+    148  f0dc		       ca		      dex		;X--
+    149  f0dd		       d0 d3		      bne	LineLoop	;repeat next visible scanline until finished
+    150  f0df
+    151  f0df							;display 30 lines of overscan
+    152  f0df		       a9 02		      lda	#2
+    153  f0e1		       85 01		      sta	VBLANK	;turn on VBLANK
+    154  f0e3
+    155  f0e3					      REPEAT	30
+    156  f0e3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0e3					      REPEND
+    156  f0e5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0e5					      REPEND
+    156  f0e7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0e7					      REPEND
+    156  f0e9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0e9					      REPEND
+    156  f0eb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0eb					      REPEND
+    156  f0ed		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0ed					      REPEND
+    156  f0ef		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0ef					      REPEND
+    156  f0f1		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0f1					      REPEND
+    156  f0f3		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0f3					      REPEND
+    156  f0f5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0f5					      REPEND
+    156  f0f7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0f7					      REPEND
+    156  f0f9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0f9					      REPEND
+    156  f0fb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0fb					      REPEND
+    156  f0fd		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0fd					      REPEND
+    156  f0ff		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f0ff					      REPEND
+    156  f101		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f101					      REPEND
+    156  f103		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f103					      REPEND
+    156  f105		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f105					      REPEND
+    156  f107		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f107					      REPEND
+    156  f109		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f109					      REPEND
+    156  f10b		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f10b					      REPEND
+    156  f10d		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f10d					      REPEND
+    156  f10f		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f10f					      REPEND
+    156  f111		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f111					      REPEND
+    156  f113		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f113					      REPEND
+    156  f115		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f115					      REPEND
+    156  f117		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f117					      REPEND
+    156  f119		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f119					      REPEND
+    156  f11b		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    155  f11b					      REPEND
+    156  f11d		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    157  f11f					      REPEND
+    158  f11f
+    159  f11f		       a9 00		      lda	#0
+    160  f121		       85 01		      sta	VBLANK	;turn off VBLANK
+    161  f123
+    162  f123							;loop new frame
+    163  f123		       4c 3a f0 	      jmp	StartFrame
+    164  f126
+    165  f126							;ROM lookup tables
+    166  f126				   JetSprite
+    167  f126		       00		      .byte.b	#%00000000
+    168  f127		       54		      .byte.b	#%01010100	;$1E
+    169  f128		       54		      .byte.b	#%01010100	;$1E
+    170  f129		       7c		      .byte.b	#%01111100	;$1E
+    171  f12a		       38		      .byte.b	#%00111000	;$1E
+    172  f12b		       38		      .byte.b	#%00111000	;$1E
+    173  f12c		       38		      .byte.b	#%00111000	;$1E
+    174  f12d		       10		      .byte.b	#%00010000	;$1E
+    175  f12e		       10		      .byte.b	#%00010000	;$1E
+    176  f12f
+    177  f12f				   BomberSprite
+    178  f12f		       00		      .byte.b	#%00000000
+    179  f130		       00		      .byte.b	#%00000000
+    180  f131		       08		      .byte.b	#%00001000
+    181  f132		       14		      .byte.b	#%00010100
+    182  f133		       2a		      .byte.b	#%00101010
+    183  f134		       2a		      .byte.b	#%00101010
+    184  f135		       7f		      .byte.b	#%01111111
+    185  f136		       49		      .byte.b	#%01001001
+    186  f137		       49		      .byte.b	#%01001001
+    187  f138
+    188  f138				   JetColour
+    189  f138		       00		      .byte.b	#$00
+    190  f139		       40		      .byte.b	#$40
+    191  f13a		       40		      .byte.b	#$40
+    192  f13b		       40		      .byte.b	#$40
+    193  f13c		       40		      .byte.b	#$40
+    194  f13d		       40		      .byte.b	#$40
+    195  f13e		       40		      .byte.b	#$40
+    196  f13f		       40		      .byte.b	#$40
+    197  f140		       40		      .byte.b	#$40
+    198  f141
+    199  f141				   BomberColour
+    200  f141		       00		      .byte.b	#$00
+    201  f142		       1e		      .byte.b	#$1E
+    202  f143		       1e		      .byte.b	#$1E
+    203  f144		       1e		      .byte.b	#$1E
+    204  f145		       1e		      .byte.b	#$1E
+    205  f146		       1e		      .byte.b	#$1E
+    206  f147		       1e		      .byte.b	#$1E
+    207  f148		       1e		      .byte.b	#$1E
+    208  f149		       1e		      .byte.b	#$1E
+    209  f14a
+    210  f14a
+    211  f14a
+    212  f14a							;end of ROM
+    213  fffc					      org	$FFFC
+    214  fffc		       00 f0		      .word.w	reset
+    215  fffe		       00 f0		      .word.w	reset
