@@ -803,7 +803,7 @@
     265  f192
     266  f192				   JetColour
     267  f192		       00		      .byte.b	#$00
-    268  f193		       40		      .byte.b	#$40
+    268  f193		       1e		      .byte.b	#$1E
     269  f194		       40		      .byte.b	#$40
     270  f195		       40		      .byte.b	#$40
     271  f196		       40		      .byte.b	#$40

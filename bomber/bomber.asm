@@ -265,7 +265,7 @@ BomberSprite:
 
 JetColour:
     .byte #$00
-    .byte #$40
+    .byte #$1E
     .byte #$40
     .byte #$40
     .byte #$40
