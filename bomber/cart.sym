@@ -8,9 +8,9 @@ AUDF1                    0018
 AUDV0                    0019                  
 AUDV1                    001a                  
 BOMBER_HEIGHT            0009              (R )
-BomberColour             f141              (R )
+BomberColour             f167              (R )
 BomberColourPtr          008a              (R )
-BomberSprite             f12f              (R )
+BomberSprite             f155              (R )
 BomberSpritePtr          0088              (R )
 BomberXPos               0082              (R )
 BomberYPos               0083              (R )
@@ -28,8 +28,9 @@ CXM1P                    0001
 CXP0FB                   0002                  
 CXP1FB                   0003                  
 CXPPMM                   0007                  
-DrawSpriteP0             f0bc              (R )
-DrawSpriteP1             f0d1              (R )
+DivideLoop               f13b              (R )
+DrawSpriteP0             f0ce              (R )
+DrawSpriteP1             f0e3              (R )
 ENABL                    001f                  
 ENAM0                    001d                  
 ENAM1                    001e                  
@@ -39,8 +40,8 @@ HMBL                     0024
 HMCLR                    002b                  
 HMM0                     0022                  
 HMM1                     0023                  
-HMOVE                    002a                  
-HMP0                     0020                  
+HMOVE                    002a              (R )
+HMP0                     0020              (R )
 HMP1                     0021                  
 INPT0                    0008                  
 INPT1                    0009                  
@@ -48,17 +49,17 @@ INPT2                    000a
 INPT3                    000b                  
 INPT4                    000c                  
 INPT5                    000d                  
-InsideBomberSprite       f0c7                  
-InsideJetSprite          f0b2                  
+InsideBomberSprite       f0d9                  
+InsideJetSprite          f0c4                  
 INTIM                    0284                  
 JET_HEIGHT               0009              (R )
-JetColour                f138              (R )
+JetColour                f15e              (R )
 JetColourPtr             0086              (R )
-JetSprite                f126              (R )
+JetSprite                f14c              (R )
 JetSpritePtr             0084              (R )
 JetXPos                  0080              (R )
 JetYPos                  0081              (R )
-LineLoop                 f0b2              (R )
+LineLoop                 f0c4              (R )
 NO_ILLEGAL_OPCODES       0000 ????         (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
@@ -73,9 +74,10 @@ RESM0                    0012
 RESM1                    0013                  
 RESMP0                   0028                  
 RESMP1                   0029                  
-RESP0                    0010                  
+RESP0                    0010              (R )
 RESP1                    0011                  
 RSYNC                    0003                  
+SetObjectXPos            f138              (R )
 StartFrame               f03a              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
@@ -99,7 +101,7 @@ VDELP0                   0025
 VDELP1                   0026                  
 VERSION_MACRO            006d                  
 VERSION_VCS              006b                  
-VisibleLine              f098                  
+VisibleLine              f0aa                  
 VSYNC                    0000              (R )
 WSYNC                    0002              (R )
 --- End of Symbol List.

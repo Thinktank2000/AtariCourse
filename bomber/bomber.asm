@@ -30,13 +30,13 @@ reset:
     CLEAN_START     ;call macro to reset memory and registers
 
     ;initialize variables
-    lda #10
+    lda #65
     sta JetXPos      ;JetXPos = 10
     lda #5
     sta JetYPos      ;JetYPos = 60
     lda #83
     sta BomberYPos   ;BomberYPos = 83
-    lda #54
+    lda #65
     sta BomberXPos   ;BomberXPos = 54
 
     ;initialize pointers
@@ -64,6 +64,18 @@ reset:
 
     ;start main display loop
 StartFrame:
+    ;calculations and tasks pre VBLANK
+    lda JetXPos
+    ldy #0
+    jsr SetObjectXPos       ;set player 0 horizontal position
+
+    lda BomberXPos
+    ldy #1
+    jsr SetObjectXPos       ;set player 1 horizontal position
+
+    sta WSYNC
+    sta HMOVE               ;apply the horizontal offsets previously set
+
 
     ;display VSYNC and VBLANK
     lda #2
@@ -161,6 +173,26 @@ DrawSpriteP1:
 
     ;loop new frame
     jmp StartFrame
+
+    ;subroutine to handle sprite X offset
+    ;A is the target offset position, 
+    ;Y is the object type (0: Player0 1: Player1 2: missile0 3: missile1 4: ball)
+SetObjectXPos subroutine
+    sta WSYNC       ;wait for fresh scanline
+    sec             ;carry flag for subtraction
+DivideLoop
+    sbc #15         ;subtract 15 from acc
+    bcs DivideLoop  ;loop until carry flag is clear
+    eor #7          ;adjust remainder to -8 to 7
+    asl
+    asl
+    asl
+    asl             ;four left shifts as HMP0 only targets the top 4 bits
+    sta HMP0,Y      ;store the fine offset
+    sta RESP0,Y     ;fix object in 15 step intervals
+    rts
+
+
 
     ;ROM lookup tables
 JetSprite:

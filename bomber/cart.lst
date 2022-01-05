@@ -434,32 +434,32 @@
      15  f00a
      31  f00a
      32  f00a							;initialize variables
-     33  f00a		       a9 0a		      lda	#10
+     33  f00a		       a9 41		      lda	#65
      34  f00c		       85 80		      sta	JetXPos	;JetXPos = 10
      35  f00e		       a9 05		      lda	#5
      36  f010		       85 81		      sta	JetYPos	;JetYPos = 60
      37  f012		       a9 53		      lda	#83
      38  f014		       85 83		      sta	BomberYPos	;BomberYPos = 83
-     39  f016		       a9 36		      lda	#54
+     39  f016		       a9 41		      lda	#65
      40  f018		       85 82		      sta	BomberXPos	;BomberXPos = 54
      41  f01a
      42  f01a							;initialize pointers
-     43  f01a		       a9 26		      lda	#<JetSprite
+     43  f01a		       a9 4c		      lda	#<JetSprite
      44  f01c		       85 84		      sta	JetSpritePtr	;low byte pointer to jet sprite lookup table
      45  f01e		       a9 f1		      lda	#>JetSprite
      46  f020		       85 85		      sta	JetSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      47  f022
-     48  f022		       a9 38		      lda	#<JetColour
+     48  f022		       a9 5e		      lda	#<JetColour
      49  f024		       85 86		      sta	JetColourPtr	;low byte pointer to jet colour lookup table
      50  f026		       a9 f1		      lda	#>JetColour
      51  f028		       85 87		      sta	JetColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
      52  f02a
-     53  f02a		       a9 2f		      lda	#<BomberSprite
+     53  f02a		       a9 55		      lda	#<BomberSprite
      54  f02c		       85 88		      sta	BomberSpritePtr	;low byte pointer to jet sprite lookup table
      55  f02e		       a9 f1		      lda	#>BomberSprite
      56  f030		       85 89		      sta	BomberSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      57  f032
-     58  f032		       a9 41		      lda	#<BomberColour
+     58  f032		       a9 67		      lda	#<BomberColour
      59  f034		       85 8a		      sta	BomberColourPtr	;low byte pointer to jet colour lookup table
      60  f036		       a9 f1		      lda	#>BomberColour
      61  f038		       85 8b		      sta	BomberColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
@@ -468,286 +468,318 @@
      64  f03a
      65  f03a							;start main display loop
      66  f03a				   StartFrame
-     67  f03a
-     68  f03a							;display VSYNC and VBLANK
-     69  f03a		       a9 02		      lda	#2
-     70  f03c		       85 00		      sta	VSYNC
-     71  f03e		       85 01		      sta	VBLANK
-     72  f040
-     73  f040							;generate 3 lines of VSYNC
-     74  f040					      REPEAT	3
-     75  f040		       85 02		      sta	WSYNC
-     74  f040					      REPEND
-     75  f042		       85 02		      sta	WSYNC
-     74  f042					      REPEND
-     75  f044		       85 02		      sta	WSYNC
-     76  f046					      REPEND
-     77  f046
-     78  f046							;turn off VSYNC
-     79  f046		       a9 00		      lda	#0
-     80  f048		       85 00		      sta	VSYNC
-     81  f04a
-     82  f04a							;generate 37 lines of VBLANK
-     83  f04a					      REPEAT	37
-     84  f04a		       85 02		      sta	WSYNC
-     83  f04a					      REPEND
-     84  f04c		       85 02		      sta	WSYNC
-     83  f04c					      REPEND
-     84  f04e		       85 02		      sta	WSYNC
-     83  f04e					      REPEND
-     84  f050		       85 02		      sta	WSYNC
-     83  f050					      REPEND
-     84  f052		       85 02		      sta	WSYNC
-     83  f052					      REPEND
-     84  f054		       85 02		      sta	WSYNC
-     83  f054					      REPEND
-     84  f056		       85 02		      sta	WSYNC
-     83  f056					      REPEND
-     84  f058		       85 02		      sta	WSYNC
-     83  f058					      REPEND
-     84  f05a		       85 02		      sta	WSYNC
-     83  f05a					      REPEND
-     84  f05c		       85 02		      sta	WSYNC
-     83  f05c					      REPEND
-     84  f05e		       85 02		      sta	WSYNC
-     83  f05e					      REPEND
-     84  f060		       85 02		      sta	WSYNC
-     83  f060					      REPEND
-     84  f062		       85 02		      sta	WSYNC
-     83  f062					      REPEND
-     84  f064		       85 02		      sta	WSYNC
-     83  f064					      REPEND
-     84  f066		       85 02		      sta	WSYNC
-     83  f066					      REPEND
-     84  f068		       85 02		      sta	WSYNC
-     83  f068					      REPEND
-     84  f06a		       85 02		      sta	WSYNC
-     83  f06a					      REPEND
-     84  f06c		       85 02		      sta	WSYNC
-     83  f06c					      REPEND
-     84  f06e		       85 02		      sta	WSYNC
-     83  f06e					      REPEND
-     84  f070		       85 02		      sta	WSYNC
-     83  f070					      REPEND
-     84  f072		       85 02		      sta	WSYNC
-     83  f072					      REPEND
-     84  f074		       85 02		      sta	WSYNC
-     83  f074					      REPEND
-     84  f076		       85 02		      sta	WSYNC
-     83  f076					      REPEND
-     84  f078		       85 02		      sta	WSYNC
-     83  f078					      REPEND
-     84  f07a		       85 02		      sta	WSYNC
-     83  f07a					      REPEND
-     84  f07c		       85 02		      sta	WSYNC
-     83  f07c					      REPEND
-     84  f07e		       85 02		      sta	WSYNC
-     83  f07e					      REPEND
-     84  f080		       85 02		      sta	WSYNC
-     83  f080					      REPEND
-     84  f082		       85 02		      sta	WSYNC
-     83  f082					      REPEND
-     84  f084		       85 02		      sta	WSYNC
-     83  f084					      REPEND
-     84  f086		       85 02		      sta	WSYNC
-     83  f086					      REPEND
-     84  f088		       85 02		      sta	WSYNC
-     83  f088					      REPEND
-     84  f08a		       85 02		      sta	WSYNC
-     83  f08a					      REPEND
-     84  f08c		       85 02		      sta	WSYNC
-     83  f08c					      REPEND
-     84  f08e		       85 02		      sta	WSYNC
-     83  f08e					      REPEND
-     84  f090		       85 02		      sta	WSYNC
-     83  f090					      REPEND
-     84  f092		       85 02		      sta	WSYNC
-     85  f094					      REPEND
-     86  f094
-     87  f094							;turn off VBLANK
-     88  f094		       a9 00		      lda	#0
-     89  f096		       85 01		      sta	VBLANK
-     90  f098
-     91  f098
-     92  f098							;display 96 visible scanlines (2 line kernel)
-     93  f098				   VisibleLine
-     94  f098		       a9 84		      lda	#$84
-     95  f09a		       85 09		      sta	COLUBK	;set background to pale blue
-     96  f09c
-     97  f09c		       a9 c2		      lda	#$C2
-     98  f09e		       85 08		      sta	COLUPF	;set playfield to green
-     99  f0a0
-    100  f0a0		       a5 01		      lda	%00000001
-    101  f0a2		       85 0a		      sta	CTRLPF	;enable playfield reflection
-    102  f0a4
-    103  f0a4		       a9 f0		      lda	#$F0
-    104  f0a6		       85 0d		      sta	PF0
-    105  f0a8							; setting PF0 bit pattern
-    106  f0a8		       a9 fc		      lda	#$FC
-    107  f0aa		       85 0e		      sta	PF1
-    108  f0ac							; setting PF1 bit pattern
-    109  f0ac		       a9 00		      lda	#0
-    110  f0ae		       85 0f		      sta	PF2	; setting PF2 bit pattern
-    111  f0b0
-    112  f0b0		       a2 60		      ldx	#96	;X counts the remaining number of scanlines
-    113  f0b2				   LineLoop
-    114  f0b2				   InsideJetSprite
-    115  f0b2		       8a		      txa		;transfer x to acc
-    116  f0b3		       38		      sec		;set carry flag for subtraction
-    117  f0b4		       e5 81		      sbc	JetYPos	;subtract sprite Y coord
-    118  f0b6		       c5 09		      cmp	JET_HEIGHT	;compare with jet height
-    119  f0b8		       90 02		      bcc	DrawSpriteP0	;if result < SpriteHeight call draw routine
-    120  f0ba		       a9 00		      lda	#0	;else, load 0
-    121  f0bc
-    122  f0bc				   DrawSpriteP0
-    123  f0bc		       a8		      tay		;Load Y so pointer can be worked with
-    124  f0bd		       b1 84		      lda	(JetSpritePtr),Y	;Load P0 Bitmap data
-    125  f0bf		       85 02		      sta	WSYNC	;wait for next scanline
-    126  f0c1		       85 1b		      sta	GRP0	;set graphics for P0
-    127  f0c3		       b1 86		      lda	(JetColourPtr),Y	;load P0 Colour data
-    128  f0c5		       85 06		      sta	COLUP0	;set colour of P0
-    129  f0c7
-    130  f0c7				   InsideBomberSprite
-    131  f0c7		       8a		      txa		;transfer x to acc
-    132  f0c8		       38		      sec		;set carry flag for subtraction
-    133  f0c9		       e5 83		      sbc	BomberYPos	;subtract sprite Y coord
-    134  f0cb		       c5 09		      cmp	BOMBER_HEIGHT	;compare with jet height
-    135  f0cd		       90 02		      bcc	DrawSpriteP1	;if result < SpriteHeight call draw routine
-    136  f0cf		       a9 00		      lda	#0	;else, load 0
-    137  f0d1
-    138  f0d1				   DrawSpriteP1
-    139  f0d1		       a8		      tay		;Load Y so pointer can be worked with
-    140  f0d2		       b1 88		      lda	(BomberSpritePtr),Y	;Load P0 Bitmap data
-    141  f0d4		       85 02		      sta	WSYNC	;wait for next scanline
-    142  f0d6		       85 1c		      sta	GRP1	;set graphics for P0
-    143  f0d8		       b1 8a		      lda	(BomberColourPtr),Y	;load P0 Colour data
-    144  f0da		       85 07		      sta	COLUP1	;set colour of P0
-    145  f0dc
-    146  f0dc
-    147  f0dc
-    148  f0dc		       ca		      dex		;X--
-    149  f0dd		       d0 d3		      bne	LineLoop	;repeat next visible scanline until finished
-    150  f0df
-    151  f0df							;display 30 lines of overscan
-    152  f0df		       a9 02		      lda	#2
-    153  f0e1		       85 01		      sta	VBLANK	;turn on VBLANK
-    154  f0e3
-    155  f0e3					      REPEAT	30
-    156  f0e3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0e3					      REPEND
-    156  f0e5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0e5					      REPEND
-    156  f0e7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0e7					      REPEND
-    156  f0e9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0e9					      REPEND
-    156  f0eb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0eb					      REPEND
-    156  f0ed		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0ed					      REPEND
-    156  f0ef		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0ef					      REPEND
-    156  f0f1		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0f1					      REPEND
-    156  f0f3		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0f3					      REPEND
-    156  f0f5		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0f5					      REPEND
-    156  f0f7		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0f7					      REPEND
-    156  f0f9		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0f9					      REPEND
-    156  f0fb		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0fb					      REPEND
-    156  f0fd		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0fd					      REPEND
-    156  f0ff		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f0ff					      REPEND
-    156  f101		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f101					      REPEND
-    156  f103		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f103					      REPEND
-    156  f105		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f105					      REPEND
-    156  f107		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f107					      REPEND
-    156  f109		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f109					      REPEND
-    156  f10b		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f10b					      REPEND
-    156  f10d		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f10d					      REPEND
-    156  f10f		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f10f					      REPEND
-    156  f111		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f111					      REPEND
-    156  f113		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f113					      REPEND
-    156  f115		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f115					      REPEND
-    156  f117		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f117					      REPEND
-    156  f119		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f119					      REPEND
-    156  f11b		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    155  f11b					      REPEND
-    156  f11d		       85 02		      sta	WSYNC	;display 30 lines of overscan
-    157  f11f					      REPEND
-    158  f11f
-    159  f11f		       a9 00		      lda	#0
-    160  f121		       85 01		      sta	VBLANK	;turn off VBLANK
-    161  f123
-    162  f123							;loop new frame
-    163  f123		       4c 3a f0 	      jmp	StartFrame
-    164  f126
-    165  f126							;ROM lookup tables
-    166  f126				   JetSprite
-    167  f126		       00		      .byte.b	#%00000000
-    168  f127		       54		      .byte.b	#%01010100	;$1E
-    169  f128		       54		      .byte.b	#%01010100	;$1E
-    170  f129		       7c		      .byte.b	#%01111100	;$1E
-    171  f12a		       38		      .byte.b	#%00111000	;$1E
-    172  f12b		       38		      .byte.b	#%00111000	;$1E
-    173  f12c		       38		      .byte.b	#%00111000	;$1E
-    174  f12d		       10		      .byte.b	#%00010000	;$1E
-    175  f12e		       10		      .byte.b	#%00010000	;$1E
-    176  f12f
-    177  f12f				   BomberSprite
-    178  f12f		       00		      .byte.b	#%00000000
-    179  f130		       00		      .byte.b	#%00000000
-    180  f131		       08		      .byte.b	#%00001000
-    181  f132		       14		      .byte.b	#%00010100
-    182  f133		       2a		      .byte.b	#%00101010
-    183  f134		       2a		      .byte.b	#%00101010
-    184  f135		       7f		      .byte.b	#%01111111
-    185  f136		       49		      .byte.b	#%01001001
-    186  f137		       49		      .byte.b	#%01001001
-    187  f138
-    188  f138				   JetColour
-    189  f138		       00		      .byte.b	#$00
-    190  f139		       40		      .byte.b	#$40
-    191  f13a		       40		      .byte.b	#$40
-    192  f13b		       40		      .byte.b	#$40
-    193  f13c		       40		      .byte.b	#$40
-    194  f13d		       40		      .byte.b	#$40
-    195  f13e		       40		      .byte.b	#$40
-    196  f13f		       40		      .byte.b	#$40
-    197  f140		       40		      .byte.b	#$40
-    198  f141
-    199  f141				   BomberColour
-    200  f141		       00		      .byte.b	#$00
-    201  f142		       1e		      .byte.b	#$1E
-    202  f143		       1e		      .byte.b	#$1E
-    203  f144		       1e		      .byte.b	#$1E
-    204  f145		       1e		      .byte.b	#$1E
-    205  f146		       1e		      .byte.b	#$1E
-    206  f147		       1e		      .byte.b	#$1E
-    207  f148		       1e		      .byte.b	#$1E
-    208  f149		       1e		      .byte.b	#$1E
-    209  f14a
-    210  f14a
-    211  f14a
-    212  f14a							;end of ROM
-    213  fffc					      org	$FFFC
-    214  fffc		       00 f0		      .word.w	reset
-    215  fffe		       00 f0		      .word.w	reset
+     67  f03a							;calculations and tasks pre VBLANK
+     68  f03a		       a5 80		      lda	JetXPos
+     69  f03c		       a0 00		      ldy	#0
+     70  f03e		       20 38 f1 	      jsr	SetObjectXPos	;set player 0 horizontal position
+     71  f041
+     72  f041		       a5 82		      lda	BomberXPos
+     73  f043		       a0 01		      ldy	#1
+     74  f045		       20 38 f1 	      jsr	SetObjectXPos	;set player 1 horizontal position
+     75  f048
+     76  f048		       85 02		      sta	WSYNC
+     77  f04a		       85 2a		      sta	HMOVE	;apply the horizontal offsets previously set
+     78  f04c
+     79  f04c
+     80  f04c							;display VSYNC and VBLANK
+     81  f04c		       a9 02		      lda	#2
+     82  f04e		       85 00		      sta	VSYNC
+     83  f050		       85 01		      sta	VBLANK
+     84  f052
+     85  f052							;generate 3 lines of VSYNC
+     86  f052					      REPEAT	3
+     87  f052		       85 02		      sta	WSYNC
+     86  f052					      REPEND
+     87  f054		       85 02		      sta	WSYNC
+     86  f054					      REPEND
+     87  f056		       85 02		      sta	WSYNC
+     88  f058					      REPEND
+     89  f058
+     90  f058							;turn off VSYNC
+     91  f058		       a9 00		      lda	#0
+     92  f05a		       85 00		      sta	VSYNC
+     93  f05c
+     94  f05c							;generate 37 lines of VBLANK
+     95  f05c					      REPEAT	37
+     96  f05c		       85 02		      sta	WSYNC
+     95  f05c					      REPEND
+     96  f05e		       85 02		      sta	WSYNC
+     95  f05e					      REPEND
+     96  f060		       85 02		      sta	WSYNC
+     95  f060					      REPEND
+     96  f062		       85 02		      sta	WSYNC
+     95  f062					      REPEND
+     96  f064		       85 02		      sta	WSYNC
+     95  f064					      REPEND
+     96  f066		       85 02		      sta	WSYNC
+     95  f066					      REPEND
+     96  f068		       85 02		      sta	WSYNC
+     95  f068					      REPEND
+     96  f06a		       85 02		      sta	WSYNC
+     95  f06a					      REPEND
+     96  f06c		       85 02		      sta	WSYNC
+     95  f06c					      REPEND
+     96  f06e		       85 02		      sta	WSYNC
+     95  f06e					      REPEND
+     96  f070		       85 02		      sta	WSYNC
+     95  f070					      REPEND
+     96  f072		       85 02		      sta	WSYNC
+     95  f072					      REPEND
+     96  f074		       85 02		      sta	WSYNC
+     95  f074					      REPEND
+     96  f076		       85 02		      sta	WSYNC
+     95  f076					      REPEND
+     96  f078		       85 02		      sta	WSYNC
+     95  f078					      REPEND
+     96  f07a		       85 02		      sta	WSYNC
+     95  f07a					      REPEND
+     96  f07c		       85 02		      sta	WSYNC
+     95  f07c					      REPEND
+     96  f07e		       85 02		      sta	WSYNC
+     95  f07e					      REPEND
+     96  f080		       85 02		      sta	WSYNC
+     95  f080					      REPEND
+     96  f082		       85 02		      sta	WSYNC
+     95  f082					      REPEND
+     96  f084		       85 02		      sta	WSYNC
+     95  f084					      REPEND
+     96  f086		       85 02		      sta	WSYNC
+     95  f086					      REPEND
+     96  f088		       85 02		      sta	WSYNC
+     95  f088					      REPEND
+     96  f08a		       85 02		      sta	WSYNC
+     95  f08a					      REPEND
+     96  f08c		       85 02		      sta	WSYNC
+     95  f08c					      REPEND
+     96  f08e		       85 02		      sta	WSYNC
+     95  f08e					      REPEND
+     96  f090		       85 02		      sta	WSYNC
+     95  f090					      REPEND
+     96  f092		       85 02		      sta	WSYNC
+     95  f092					      REPEND
+     96  f094		       85 02		      sta	WSYNC
+     95  f094					      REPEND
+     96  f096		       85 02		      sta	WSYNC
+     95  f096					      REPEND
+     96  f098		       85 02		      sta	WSYNC
+     95  f098					      REPEND
+     96  f09a		       85 02		      sta	WSYNC
+     95  f09a					      REPEND
+     96  f09c		       85 02		      sta	WSYNC
+     95  f09c					      REPEND
+     96  f09e		       85 02		      sta	WSYNC
+     95  f09e					      REPEND
+     96  f0a0		       85 02		      sta	WSYNC
+     95  f0a0					      REPEND
+     96  f0a2		       85 02		      sta	WSYNC
+     95  f0a2					      REPEND
+     96  f0a4		       85 02		      sta	WSYNC
+     97  f0a6					      REPEND
+     98  f0a6
+     99  f0a6							;turn off VBLANK
+    100  f0a6		       a9 00		      lda	#0
+    101  f0a8		       85 01		      sta	VBLANK
+    102  f0aa
+    103  f0aa
+    104  f0aa							;display 96 visible scanlines (2 line kernel)
+    105  f0aa				   VisibleLine
+    106  f0aa		       a9 84		      lda	#$84
+    107  f0ac		       85 09		      sta	COLUBK	;set background to pale blue
+    108  f0ae
+    109  f0ae		       a9 c2		      lda	#$C2
+    110  f0b0		       85 08		      sta	COLUPF	;set playfield to green
+    111  f0b2
+    112  f0b2		       a5 01		      lda	%00000001
+    113  f0b4		       85 0a		      sta	CTRLPF	;enable playfield reflection
+    114  f0b6
+    115  f0b6		       a9 f0		      lda	#$F0
+    116  f0b8		       85 0d		      sta	PF0
+    117  f0ba							; setting PF0 bit pattern
+    118  f0ba		       a9 fc		      lda	#$FC
+    119  f0bc		       85 0e		      sta	PF1
+    120  f0be							; setting PF1 bit pattern
+    121  f0be		       a9 00		      lda	#0
+    122  f0c0		       85 0f		      sta	PF2	; setting PF2 bit pattern
+    123  f0c2
+    124  f0c2		       a2 60		      ldx	#96	;X counts the remaining number of scanlines
+    125  f0c4				   LineLoop
+    126  f0c4				   InsideJetSprite
+    127  f0c4		       8a		      txa		;transfer x to acc
+    128  f0c5		       38		      sec		;set carry flag for subtraction
+    129  f0c6		       e5 81		      sbc	JetYPos	;subtract sprite Y coord
+    130  f0c8		       c5 09		      cmp	JET_HEIGHT	;compare with jet height
+    131  f0ca		       90 02		      bcc	DrawSpriteP0	;if result < SpriteHeight call draw routine
+    132  f0cc		       a9 00		      lda	#0	;else, load 0
+    133  f0ce
+    134  f0ce				   DrawSpriteP0
+    135  f0ce		       a8		      tay		;Load Y so pointer can be worked with
+    136  f0cf		       b1 84		      lda	(JetSpritePtr),Y	;Load P0 Bitmap data
+    137  f0d1		       85 02		      sta	WSYNC	;wait for next scanline
+    138  f0d3		       85 1b		      sta	GRP0	;set graphics for P0
+    139  f0d5		       b1 86		      lda	(JetColourPtr),Y	;load P0 Colour data
+    140  f0d7		       85 06		      sta	COLUP0	;set colour of P0
+    141  f0d9
+    142  f0d9				   InsideBomberSprite
+    143  f0d9		       8a		      txa		;transfer x to acc
+    144  f0da		       38		      sec		;set carry flag for subtraction
+    145  f0db		       e5 83		      sbc	BomberYPos	;subtract sprite Y coord
+    146  f0dd		       c5 09		      cmp	BOMBER_HEIGHT	;compare with jet height
+    147  f0df		       90 02		      bcc	DrawSpriteP1	;if result < SpriteHeight call draw routine
+    148  f0e1		       a9 00		      lda	#0	;else, load 0
+    149  f0e3
+    150  f0e3				   DrawSpriteP1
+    151  f0e3		       a8		      tay		;Load Y so pointer can be worked with
+    152  f0e4		       b1 88		      lda	(BomberSpritePtr),Y	;Load P0 Bitmap data
+    153  f0e6		       85 02		      sta	WSYNC	;wait for next scanline
+    154  f0e8		       85 1c		      sta	GRP1	;set graphics for P0
+    155  f0ea		       b1 8a		      lda	(BomberColourPtr),Y	;load P0 Colour data
+    156  f0ec		       85 07		      sta	COLUP1	;set colour of P0
+    157  f0ee
+    158  f0ee
+    159  f0ee
+    160  f0ee		       ca		      dex		;X--
+    161  f0ef		       d0 d3		      bne	LineLoop	;repeat next visible scanline until finished
+    162  f0f1
+    163  f0f1							;display 30 lines of overscan
+    164  f0f1		       a9 02		      lda	#2
+    165  f0f3		       85 01		      sta	VBLANK	;turn on VBLANK
+    166  f0f5
+    167  f0f5					      REPEAT	30
+    168  f0f5		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0f5					      REPEND
+    168  f0f7		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0f7					      REPEND
+    168  f0f9		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0f9					      REPEND
+    168  f0fb		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0fb					      REPEND
+    168  f0fd		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0fd					      REPEND
+    168  f0ff		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f0ff					      REPEND
+    168  f101		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f101					      REPEND
+    168  f103		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f103					      REPEND
+    168  f105		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f105					      REPEND
+    168  f107		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f107					      REPEND
+    168  f109		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f109					      REPEND
+    168  f10b		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f10b					      REPEND
+    168  f10d		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f10d					      REPEND
+    168  f10f		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f10f					      REPEND
+    168  f111		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f111					      REPEND
+    168  f113		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f113					      REPEND
+    168  f115		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f115					      REPEND
+    168  f117		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f117					      REPEND
+    168  f119		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f119					      REPEND
+    168  f11b		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f11b					      REPEND
+    168  f11d		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f11d					      REPEND
+    168  f11f		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f11f					      REPEND
+    168  f121		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f121					      REPEND
+    168  f123		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f123					      REPEND
+    168  f125		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f125					      REPEND
+    168  f127		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f127					      REPEND
+    168  f129		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f129					      REPEND
+    168  f12b		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f12b					      REPEND
+    168  f12d		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    167  f12d					      REPEND
+    168  f12f		       85 02		      sta	WSYNC	;display 30 lines of overscan
+    169  f131					      REPEND
+    170  f131
+    171  f131		       a9 00		      lda	#0
+    172  f133		       85 01		      sta	VBLANK	;turn off VBLANK
+    173  f135
+    174  f135							;loop new frame
+    175  f135		       4c 3a f0 	      jmp	StartFrame
+    176  f138
+    177  f138							;subroutine to handle sprite X offset
+    178  f138							;A is the target offset position,
+    179  f138							;Y is the object type (0: Player0 1: Player1 2: missile0 3: missile1 4: ball)
+    180  f138				   SetObjectXPos subroutine
+    181  f138		       85 02		      sta	WSYNC	;wait for fresh scanline
+    182  f13a		       38		      sec		;carry flag for subtraction
+    183  f13b				   DivideLoop
+    184  f13b		       e9 0f		      sbc	#15	;subtract 15 from acc
+    185  f13d		       b0 fc		      bcs	DivideLoop	;loop until carry flag is clear
+    186  f13f		       49 07		      eor	#7	;adjust remainder to -8 to 7
+    187  f141		       0a		      asl
+    188  f142		       0a		      asl
+    189  f143		       0a		      asl
+    190  f144		       0a		      asl		;four left shifts as HMP0 only targets the top 4 bits
+    191  f145		       99 20 00 	      sta	HMP0,Y	;store the fine offset
+    192  f148		       99 10 00 	      sta	RESP0,Y	;fix object in 15 step intervals
+    193  f14b		       60		      rts
+    194  f14c
+    195  f14c
+    196  f14c
+    197  f14c							;ROM lookup tables
+    198  f14c				   JetSprite
+    199  f14c		       00		      .byte.b	#%00000000
+    200  f14d		       54		      .byte.b	#%01010100	;$1E
+    201  f14e		       54		      .byte.b	#%01010100	;$1E
+    202  f14f		       7c		      .byte.b	#%01111100	;$1E
+    203  f150		       38		      .byte.b	#%00111000	;$1E
+    204  f151		       38		      .byte.b	#%00111000	;$1E
+    205  f152		       38		      .byte.b	#%00111000	;$1E
+    206  f153		       10		      .byte.b	#%00010000	;$1E
+    207  f154		       10		      .byte.b	#%00010000	;$1E
+    208  f155
+    209  f155				   BomberSprite
+    210  f155		       00		      .byte.b	#%00000000
+    211  f156		       00		      .byte.b	#%00000000
+    212  f157		       08		      .byte.b	#%00001000
+    213  f158		       14		      .byte.b	#%00010100
+    214  f159		       2a		      .byte.b	#%00101010
+    215  f15a		       2a		      .byte.b	#%00101010
+    216  f15b		       7f		      .byte.b	#%01111111
+    217  f15c		       49		      .byte.b	#%01001001
+    218  f15d		       49		      .byte.b	#%01001001
+    219  f15e
+    220  f15e				   JetColour
+    221  f15e		       00		      .byte.b	#$00
+    222  f15f		       40		      .byte.b	#$40
+    223  f160		       40		      .byte.b	#$40
+    224  f161		       40		      .byte.b	#$40
+    225  f162		       40		      .byte.b	#$40
+    226  f163		       40		      .byte.b	#$40
+    227  f164		       40		      .byte.b	#$40
+    228  f165		       40		      .byte.b	#$40
+    229  f166		       40		      .byte.b	#$40
+    230  f167
+    231  f167				   BomberColour
+    232  f167		       00		      .byte.b	#$00
+    233  f168		       1e		      .byte.b	#$1E
+    234  f169		       1e		      .byte.b	#$1E
+    235  f16a		       1e		      .byte.b	#$1E
+    236  f16b		       1e		      .byte.b	#$1E
+    237  f16c		       1e		      .byte.b	#$1E
+    238  f16d		       1e		      .byte.b	#$1E
+    239  f16e		       1e		      .byte.b	#$1E
+    240  f16f		       1e		      .byte.b	#$1E
+    241  f170
+    242  f170
+    243  f170
+    244  f170							;end of ROM
+    245  fffc					      org	$FFFC
+    246  fffc		       00 f0		      .word.w	reset
+    247  fffe		       00 f0		      .word.w	reset
