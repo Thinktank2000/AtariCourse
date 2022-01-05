@@ -214,9 +214,6 @@ ResetBomberPosition:            ;resets Bomber Y position back to the top of the
 
 EndPositionUpdate:      ;fallback for position update code
 
-
-
-
     ;loop new frame
     jmp StartFrame
 
