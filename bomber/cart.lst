@@ -444,22 +444,22 @@
      40  f018		       85 82		      sta	BomberXPos	;BomberXPos = 54
      41  f01a
      42  f01a							;initialize pointers
-     43  f01a		       a9 4c		      lda	#<JetSprite
+     43  f01a		       a9 80		      lda	#<JetSprite
      44  f01c		       85 84		      sta	JetSpritePtr	;low byte pointer to jet sprite lookup table
      45  f01e		       a9 f1		      lda	#>JetSprite
      46  f020		       85 85		      sta	JetSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      47  f022
-     48  f022		       a9 5e		      lda	#<JetColour
+     48  f022		       a9 92		      lda	#<JetColour
      49  f024		       85 86		      sta	JetColourPtr	;low byte pointer to jet colour lookup table
      50  f026		       a9 f1		      lda	#>JetColour
      51  f028		       85 87		      sta	JetColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
      52  f02a
-     53  f02a		       a9 55		      lda	#<BomberSprite
+     53  f02a		       a9 89		      lda	#<BomberSprite
      54  f02c		       85 88		      sta	BomberSpritePtr	;low byte pointer to jet sprite lookup table
      55  f02e		       a9 f1		      lda	#>BomberSprite
      56  f030		       85 89		      sta	BomberSpritePtr+1	;high byte pointer to jet sprite lookup table (plus one)
      57  f032
-     58  f032		       a9 67		      lda	#<BomberColour
+     58  f032		       a9 9b		      lda	#<BomberColour
      59  f034		       85 8a		      sta	BomberColourPtr	;low byte pointer to jet colour lookup table
      60  f036		       a9 f1		      lda	#>BomberColour
      61  f038		       85 8b		      sta	BomberColourPtr+1	;high byte pointer to jet colour lookup table (plus one)
@@ -471,11 +471,11 @@
      67  f03a							;calculations and tasks pre VBLANK
      68  f03a		       a5 80		      lda	JetXPos
      69  f03c		       a0 00		      ldy	#0
-     70  f03e		       20 38 f1 	      jsr	SetObjectXPos	;set player 0 horizontal position
+     70  f03e		       20 6c f1 	      jsr	SetObjectXPos	;set player 0 horizontal position
      71  f041
      72  f041		       a5 82		      lda	BomberXPos
      73  f043		       a0 01		      ldy	#1
-     74  f045		       20 38 f1 	      jsr	SetObjectXPos	;set player 1 horizontal position
+     74  f045		       20 6c f1 	      jsr	SetObjectXPos	;set player 1 horizontal position
      75  f048
      76  f048		       85 02		      sta	WSYNC
      77  f04a		       85 2a		      sta	HMOVE	;apply the horizontal offsets previously set
@@ -709,77 +709,123 @@
     171  f131		       a9 00		      lda	#0
     172  f133		       85 01		      sta	VBLANK	;turn off VBLANK
     173  f135
-    174  f135							;loop new frame
-    175  f135		       4c 3a f0 	      jmp	StartFrame
-    176  f138
-    177  f138							;subroutine to handle sprite X offset
-    178  f138							;A is the target offset position,
-    179  f138							;Y is the object type (0: Player0 1: Player1 2: missile0 3: missile1 4: ball)
-    180  f138				   SetObjectXPos subroutine
-    181  f138		       85 02		      sta	WSYNC	;wait for fresh scanline
-    182  f13a		       38		      sec		;carry flag for subtraction
-    183  f13b				   DivideLoop
-    184  f13b		       e9 0f		      sbc	#15	;subtract 15 from acc
-    185  f13d		       b0 fc		      bcs	DivideLoop	;loop until carry flag is clear
-    186  f13f		       49 07		      eor	#7	;adjust remainder to -8 to 7
-    187  f141		       0a		      asl
-    188  f142		       0a		      asl
-    189  f143		       0a		      asl
-    190  f144		       0a		      asl		;four left shifts as HMP0 only targets the top 4 bits
-    191  f145		       99 20 00 	      sta	HMP0,Y	;store the fine offset
-    192  f148		       99 10 00 	      sta	RESP0,Y	;fix object in 15 step intervals
-    193  f14b		       60		      rts
-    194  f14c
-    195  f14c
-    196  f14c
-    197  f14c							;ROM lookup tables
-    198  f14c				   JetSprite
-    199  f14c		       00		      .byte.b	#%00000000
-    200  f14d		       54		      .byte.b	#%01010100	;$1E
-    201  f14e		       54		      .byte.b	#%01010100	;$1E
-    202  f14f		       7c		      .byte.b	#%01111100	;$1E
-    203  f150		       38		      .byte.b	#%00111000	;$1E
-    204  f151		       38		      .byte.b	#%00111000	;$1E
-    205  f152		       38		      .byte.b	#%00111000	;$1E
-    206  f153		       10		      .byte.b	#%00010000	;$1E
-    207  f154		       10		      .byte.b	#%00010000	;$1E
-    208  f155
-    209  f155				   BomberSprite
-    210  f155		       00		      .byte.b	#%00000000
-    211  f156		       00		      .byte.b	#%00000000
-    212  f157		       08		      .byte.b	#%00001000
-    213  f158		       14		      .byte.b	#%00010100
-    214  f159		       2a		      .byte.b	#%00101010
-    215  f15a		       2a		      .byte.b	#%00101010
-    216  f15b		       7f		      .byte.b	#%01111111
-    217  f15c		       49		      .byte.b	#%01001001
-    218  f15d		       49		      .byte.b	#%01001001
-    219  f15e
-    220  f15e				   JetColour
-    221  f15e		       00		      .byte.b	#$00
-    222  f15f		       40		      .byte.b	#$40
-    223  f160		       40		      .byte.b	#$40
-    224  f161		       40		      .byte.b	#$40
-    225  f162		       40		      .byte.b	#$40
-    226  f163		       40		      .byte.b	#$40
-    227  f164		       40		      .byte.b	#$40
-    228  f165		       40		      .byte.b	#$40
-    229  f166		       40		      .byte.b	#$40
-    230  f167
-    231  f167				   BomberColour
-    232  f167		       00		      .byte.b	#$00
-    233  f168		       1e		      .byte.b	#$1E
-    234  f169		       1e		      .byte.b	#$1E
-    235  f16a		       1e		      .byte.b	#$1E
-    236  f16b		       1e		      .byte.b	#$1E
-    237  f16c		       1e		      .byte.b	#$1E
-    238  f16d		       1e		      .byte.b	#$1E
-    239  f16e		       1e		      .byte.b	#$1E
-    240  f16f		       1e		      .byte.b	#$1E
-    241  f170
-    242  f170
-    243  f170
-    244  f170							;end of ROM
-    245  fffc					      org	$FFFC
-    246  fffc		       00 f0		      .word.w	reset
-    247  fffe		       00 f0		      .word.w	reset
+    174  f135							;process joystick input for P0
+    175  f135				   CheckP0Up
+    176  f135		       a9 10		      lda	#%00010000	;player 0 joystick up
+    177  f137		       2c 80 02 	      bit	SWCHA
+    178  f13a		       d0 02		      bne	CheckP0Down	;if up isnt being pressed skip to down
+    179  f13c		       e6 81		      inc	JetYPos
+    180  f13e
+    181  f13e				   CheckP0Down
+    182  f13e		       a9 20		      lda	#%00100000	;Player 0 joystick down
+    183  f140		       2c 80 02 	      bit	SWCHA
+    184  f143		       d0 02		      bne	CheckP0Left	;skip to left if not pressed
+    185  f145		       c6 81		      dec	JetYPos
+    186  f147
+    187  f147				   CheckP0Left
+    188  f147		       a9 40		      lda	#%01000000	;Player 0 joystick left
+    189  f149		       2c 80 02 	      bit	SWCHA
+    190  f14c		       d0 02		      bne	CheckP0Right	;skip to right if not pressed
+    191  f14e		       c6 80		      dec	JetXPos
+    192  f150
+    193  f150				   CheckP0Right
+    194  f150		       a9 80		      lda	#%10000000	;player 0 joystick right
+    195  f152		       2c 80 02 	      bit	SWCHA
+    196  f155		       d0 02		      bne	NoInput	;fallback to no input
+    197  f157		       e6 80		      inc	JetXPos
+    198  f159
+    199  f159				   NoInput
+    200  f159
+    201  f159							;calculations to update position for next frame
+    202  f159				   UpdateBomberPosition
+    203  f159		       a5 83		      lda	BomberYPos	;load Bomber Y position to acc
+    204  f15b		       18		      clc		;clear the carry flag
+    205  f15c		       c9 00		      cmp	#0	;compare Y position to 0
+    206  f15e		       30 05		      bmi	ResetBomberPosition	;branch to ResetBomberPosition if the number is a negative
+    207  f160		       c6 83		      dec	BomberYPos	;decrement the bomber y position
+    208  f162		       4c 69 f1 	      jmp	EndPositionUpdate	;jump to fallback
+    209  f165
+    210  f165				   ResetBomberPosition		;resets Bomber Y position back to the top of the screen
+    211  f165		       a9 60		      lda	#96
+    212  f167		       85 83		      sta	BomberYPos
+    213  f169							;TODO set BomberXPos to random number
+    214  f169
+    215  f169				   EndPositionUpdate		;fallback for position update code
+    216  f169
+    217  f169
+    218  f169
+    219  f169
+    220  f169							;loop new frame
+    221  f169		       4c 3a f0 	      jmp	StartFrame
+    222  f16c
+    223  f16c							;subroutine to handle sprite X offset
+    224  f16c							;A is the target offset position,
+    225  f16c							;Y is the object type (0: Player0 1: Player1 2: missile0 3: missile1 4: ball)
+    226  f16c				   SetObjectXPos subroutine
+    227  f16c		       85 02		      sta	WSYNC	;wait for fresh scanline
+    228  f16e		       38		      sec		;carry flag for subtraction
+    229  f16f				   DivideLoop
+    230  f16f		       e9 0f		      sbc	#15	;subtract 15 from acc
+    231  f171		       b0 fc		      bcs	DivideLoop	;loop until carry flag is clear
+    232  f173		       49 07		      eor	#7	;adjust remainder to -8 to 7
+    233  f175		       0a		      asl
+    234  f176		       0a		      asl
+    235  f177		       0a		      asl
+    236  f178		       0a		      asl		;four left shifts as HMP0 only targets the top 4 bits
+    237  f179		       99 20 00 	      sta	HMP0,Y	;store the fine offset
+    238  f17c		       99 10 00 	      sta	RESP0,Y	;fix object in 15 step intervals
+    239  f17f		       60		      rts
+    240  f180
+    241  f180
+    242  f180
+    243  f180							;ROM lookup tables
+    244  f180				   JetSprite
+    245  f180		       00		      .byte.b	#%00000000
+    246  f181		       54		      .byte.b	#%01010100	;$1E
+    247  f182		       54		      .byte.b	#%01010100	;$1E
+    248  f183		       7c		      .byte.b	#%01111100	;$1E
+    249  f184		       38		      .byte.b	#%00111000	;$1E
+    250  f185		       38		      .byte.b	#%00111000	;$1E
+    251  f186		       38		      .byte.b	#%00111000	;$1E
+    252  f187		       10		      .byte.b	#%00010000	;$1E
+    253  f188		       10		      .byte.b	#%00010000	;$1E
+    254  f189
+    255  f189				   BomberSprite
+    256  f189		       00		      .byte.b	#%00000000
+    257  f18a		       00		      .byte.b	#%00000000
+    258  f18b		       08		      .byte.b	#%00001000
+    259  f18c		       14		      .byte.b	#%00010100
+    260  f18d		       2a		      .byte.b	#%00101010
+    261  f18e		       2a		      .byte.b	#%00101010
+    262  f18f		       7f		      .byte.b	#%01111111
+    263  f190		       49		      .byte.b	#%01001001
+    264  f191		       49		      .byte.b	#%01001001
+    265  f192
+    266  f192				   JetColour
+    267  f192		       00		      .byte.b	#$00
+    268  f193		       40		      .byte.b	#$40
+    269  f194		       40		      .byte.b	#$40
+    270  f195		       40		      .byte.b	#$40
+    271  f196		       40		      .byte.b	#$40
+    272  f197		       40		      .byte.b	#$40
+    273  f198		       40		      .byte.b	#$40
+    274  f199		       40		      .byte.b	#$40
+    275  f19a		       40		      .byte.b	#$40
+    276  f19b
+    277  f19b				   BomberColour
+    278  f19b		       00		      .byte.b	#$00
+    279  f19c		       1e		      .byte.b	#$1E
+    280  f19d		       1e		      .byte.b	#$1E
+    281  f19e		       1e		      .byte.b	#$1E
+    282  f19f		       1e		      .byte.b	#$1E
+    283  f1a0		       1e		      .byte.b	#$1E
+    284  f1a1		       1e		      .byte.b	#$1E
+    285  f1a2		       1e		      .byte.b	#$1E
+    286  f1a3		       1e		      .byte.b	#$1E
+    287  f1a4
+    288  f1a4
+    289  f1a4
+    290  f1a4							;end of ROM
+    291  fffc					      org	$FFFC
+    292  fffc		       00 f0		      .word.w	reset
+    293  fffe		       00 f0		      .word.w	reset

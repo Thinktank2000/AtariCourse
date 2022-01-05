@@ -171,6 +171,52 @@ DrawSpriteP1:
     lda #0
     sta VBLANK    ;turn off VBLANK
 
+    ;process joystick input for P0
+CheckP0Up:
+    lda #%00010000      ;player 0 joystick up
+    bit SWCHA
+    bne CheckP0Down     ;if up isnt being pressed skip to down
+    inc JetYPos
+
+CheckP0Down:
+    lda #%00100000      ;Player 0 joystick down
+    bit SWCHA
+    bne CheckP0Left     ;skip to left if not pressed
+    dec JetYPos
+
+CheckP0Left:
+    lda #%01000000      ;Player 0 joystick left
+    bit SWCHA
+    bne CheckP0Right    ;skip to right if not pressed
+    dec JetXPos
+
+CheckP0Right:
+    lda #%10000000      ;player 0 joystick right
+    bit SWCHA
+    bne NoInput         ;fallback to no input
+    inc JetXPos
+
+NoInput:
+
+    ;calculations to update position for next frame
+UpdateBomberPosition:
+    lda BomberYPos              ;load Bomber Y position to acc
+    clc                         ;clear the carry flag
+    cmp #0                      ;compare Y position to 0
+    bmi ResetBomberPosition     ;branch to ResetBomberPosition if the number is a negative
+    dec BomberYPos              ;decrement the bomber y position
+    jmp EndPositionUpdate       ;jump to fallback
+
+ResetBomberPosition:            ;resets Bomber Y position back to the top of the screen
+    lda #96
+    sta BomberYPos
+    ;TODO set BomberXPos to random number
+
+EndPositionUpdate:      ;fallback for position update code
+
+
+
+
     ;loop new frame
     jmp StartFrame
 
