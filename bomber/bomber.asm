@@ -8,14 +8,15 @@
     seg.u variables
     org $80
 
-JetXPos         byte       ;player 0 X position
-JetYPos         byte       ;player 0 Y position
-BomberXPos      byte       ;player 1 X position
-BomberYPos      byte       ;player 1 Y position
-JetSpritePtr    word       ;Player 0 sprite pointer
-JetColourPtr    word       ;player 0 colour pointer
-BomberSpritePtr word       ;Player 1 sprite pointer
-BomberColourPtr word       ;player 1 colour pointer
+JetXPos            byte       ;player 0 X position
+JetYPos            byte       ;player 0 Y position
+BomberXPos         byte       ;player 1 X position
+BomberYPos         byte       ;player 1 Y position
+JetSpritePtr       word       ;Player 0 sprite pointer
+JetColourPtr       word       ;player 0 colour pointer
+BomberSpritePtr    word       ;Player 1 sprite pointer
+BomberColourPtr    word       ;player 1 colour pointer
+JetAnimOffset byte       ;player 0 frame offset
 
     ;define constants
 JET_HEIGHT = 9             ;Player 0 sprite height
@@ -31,13 +32,13 @@ reset:
 
     ;initialize variables
     lda #65
-    sta JetXPos      ;JetXPos = 10
+    sta JetXPos      ;JetXPos = 65
     lda #5
-    sta JetYPos      ;JetYPos = 60
+    sta JetYPos      ;JetYPos = 5
     lda #83
     sta BomberYPos   ;BomberYPos = 83
     lda #65
-    sta BomberXPos   ;BomberXPos = 54
+    sta BomberXPos   ;BomberXPos = 65
 
     ;initialize pointers
     lda #<JetSprite
@@ -132,6 +133,9 @@ InsideJetSprite:
     lda #0                  ;else, load 0
 
 DrawSpriteP0:
+    clc                     ;clear carry before addition
+    adc JetAnimOffset       ;jump to the sprite frame in memory
+
     tay                     ;Load Y so pointer can be worked with
     lda (JetSpritePtr),Y    ;Load P0 Bitmap data
     sta WSYNC               ;wait for next scanline
@@ -155,10 +159,11 @@ DrawSpriteP1:
     lda (BomberColourPtr),Y    ;load P0 Colour data
     sta COLUP1              ;set colour of P0
 
-
-
     dex           ;X--
     bne LineLoop  ;repeat next visible scanline until finished
+
+    lda #0
+    sta JetAnimOffset       ;reset jet animation
 
     ;display 30 lines of overscan
     lda #2
@@ -177,24 +182,32 @@ CheckP0Up:
     bit SWCHA
     bne CheckP0Down     ;if up isnt being pressed skip to down
     inc JetYPos
+    lda #0
+    sta JetAnimOffset   ;reset animation
 
 CheckP0Down:
     lda #%00100000      ;Player 0 joystick down
     bit SWCHA
     bne CheckP0Left     ;skip to left if not pressed
     dec JetYPos
+    lda #0
+    sta JetAnimOffset   ;reset animation
 
 CheckP0Left:
     lda #%01000000      ;Player 0 joystick left
     bit SWCHA
     bne CheckP0Right    ;skip to right if not pressed
     dec JetXPos
+    lda JET_HEIGHT      ;9
+    sta JetAnimOffset   ;set the animation offset to the next frame
 
 CheckP0Right:
     lda #%10000000      ;player 0 joystick right
     bit SWCHA
     bne NoInput         ;fallback to no input
     inc JetXPos
+    lda JET_HEIGHT      ;9
+    sta JetAnimOffset   ;set the animation offset to the next frame
 
 NoInput:
 
@@ -241,13 +254,24 @@ DivideLoop
 JetSprite:
     .byte #%00000000
     .byte #%01010100;$1E
+    .byte #%01010100;$40
+    .byte #%01111100;$40
+    .byte #%00111000;$40
+    .byte #%00111000;$40
+    .byte #%00111000;$40
+    .byte #%00010000;$40
+    .byte #%00010000;$40
+
+
+JetSpriteTurn:
+    .byte #%00000000;$1E
     .byte #%01010100;$1E
-    .byte #%01111100;$1E
-    .byte #%00111000;$1E
-    .byte #%00111000;$1E
-    .byte #%00111000;$1E
-    .byte #%00010000;$1E
-    .byte #%00010000;$1E
+    .byte #%01010100;$40
+    .byte #%00111000;$40
+    .byte #%00010000;$40
+    .byte #%00010000;$40
+    .byte #%00010000;$40
+    .byte #%00010000;$40
 
 BomberSprite:
     .byte #%00000000
@@ -271,7 +295,19 @@ JetColour:
     .byte #$40
     .byte #$40
 
+JetTurnColour:
+    .byte #$1E;
+    .byte #$1E;
+    .byte #$40;
+    .byte #$40;
+    .byte #$40;
+    .byte #$40;
+    .byte #$40;
+    .byte #$40;
+    .byte #$40;
+
 BomberColour:
+    .byte #$00
     .byte #$00
     .byte #$1E
     .byte #$1E
@@ -280,9 +316,6 @@ BomberColour:
     .byte #$1E
     .byte #$1E
     .byte #$1E
-    .byte #$1E
-
-
 
     ;end of ROM
     org $FFFC
