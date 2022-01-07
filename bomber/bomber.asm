@@ -39,7 +39,7 @@ DIGIT_HEIGHT = 5           ;Scoreboard height
 reset:
     CLEAN_START     ;call macro to reset memory and registers
 
-    ;initialize variables
+    ;initialize variables-----------------------------------------------
     lda #65
     sta JetXPos      ;JetXPos = 65
     lda #5
@@ -54,7 +54,7 @@ reset:
     sta Score
     sta Timer        ;score and timer = 0
 
-    ;initialize pointers
+    ;initialize pointers------------------------------------------------
     lda #<JetSprite
     sta JetSpritePtr        ;low byte pointer to jet sprite lookup table
     lda #>JetSprite
@@ -75,61 +75,55 @@ reset:
     lda #>BomberColour
     sta BomberColourPtr+1      ;high byte pointer to jet colour lookup table (plus one)
 
-
-
-    ;start main display loop
+    ;start main display loop--------------------------------------------
 StartFrame:
-    ;calculations and tasks pre VBLANK
-    lda JetXPos
-    ldy #0
-    jsr SetObjectXPos          ;set player 0 horizontal position
-
-    lda BomberXPos
-    ldy #1
-    jsr SetObjectXPos          ;set player 1 horizontal position
-
-    jsr CalculateDigitOffset   ;calculate the scoreboard offset
-
-    sta WSYNC
-    sta HMOVE                  ;apply the horizontal offsets previously set
-
-
-    ;display VSYNC and VBLANK
+    ;display VSYNC and VBLANK-------------------------------------------
     lda #2
     sta VSYNC
     sta VBLANK
-
-    ;generate 3 lines of VSYNC
+    ;generate 3 lines of VSYNC------------------------------------------
     REPEAT 3
         sta WSYNC
     REPEND 
-
-    ;turn off VSYNC
+    ;turn off VSYNC-----------------------------------------------------
     lda #0
     sta VSYNC
 
-    ;generate 37 lines of VBLANK
-    REPEAT 37
+    ;generate 37 lines of VBLANK----------------------------------------
+    REPEAT 33
         sta WSYNC
     REPEND
 
-    ;turn off VBLANK
+    ;calculations and tasks in VBLANK-----------------------------------
+    lda JetXPos
+    ldy #0
+    jsr SetObjectXPos          ;set player 0 horizontal position
+    lda BomberXPos
+    ldy #1
+    jsr SetObjectXPos          ;set player 1 horizontal position
+    jsr CalculateDigitOffset   ;calculate the scoreboard offset
+    sta WSYNC
+    sta HMOVE                  ;apply the horizontal offsets previously set
+
+    ;turn off VBLANK---------------------------------------------------
     lda #0
     sta VBLANK
-
-    ;display scoreboard lines
+    
+    ;clear TIA registers-----------------------------------------------
     lda #0              ;clear TIA registers
     sta PF0
     sta PF1
     sta PF2
     sta GRP0
     sta GRP1
+    sta COLUBK
     lda #$1C            ;set scoreboard colour to white
     sta COLUPF
     lda #%00000000
     sta CTRLPF          ;disable playfield reflection
-    ldx #DIGIT_HEIGHT   ;store 5 in X
 
+    ;display scoreboard lines------------------------------------------
+    ldx #DIGIT_HEIGHT   ;store 5 in X
 ScoreDigitLoop:
     ldy TensDigitOffset ;get the tens digit offset for the score
     lda Digits,Y        ;load sprite
@@ -155,11 +149,33 @@ ScoreDigitLoop:
     ora TimerSprite
     sta TimerSprite
 
+    jsr Sleep12Cycles
+    sta PF1
+    ldy ScoreSprite
+    sta WSYNC
+
+    sty PF1
+    inc TensDigitOffset
+    inc TensDigitOffset+1
+    inc OnesDigitOffset
+    inc OnesDigitOffset+1
+
+    jsr Sleep12Cycles
+
     dex                 ;X--
+    sta PF1
     bne ScoreDigitLoop  ;branch back to ScoreDigitLoop if dex != 0
+    sta WSYNC
 
+    lda #0
+    sta PF0
+    sta PF1
+    sta PF2
+    sta WSYNC
+    sta WSYNC
+    sta WSYNC
 
-    ;display 96 visible scanlines (2 line kernel)
+    ;display 96 visible scanlines (2 line kernel)-----------------------------
 VisibleLine:
     lda #$84
     sta COLUBK    ;set background to pale blue
@@ -179,7 +195,7 @@ VisibleLine:
     lda #0
     sta PF2       ; setting PF2 bit pattern
 
-    ldx #84      ;X counts the remaining number of scanlines
+    ldx #85      ;X counts the remaining number of scanlines
 LineLoop:
 InsideJetSprite:
     txa                     ;transfer x to acc
@@ -233,7 +249,7 @@ DrawSpriteP1:
     lda #0
     sta VBLANK    ;turn off VBLANK
 
-    ;process joystick input for P0
+    ;process joystick input for P0--------------------------------------------------------------------
 CheckP0Up:
     lda #%00010000      ;player 0 joystick up
     bit SWCHA
@@ -260,6 +276,10 @@ CheckP0Left:
 
 CheckP0Right:
     lda #%10000000      ;player 0 joystick right
+    sta TimerSprite
+
+    jsr Sleep12Cycles
+
     bit SWCHA
     bne NoInput         ;fallback to no input
     inc JetXPos
@@ -268,7 +288,7 @@ CheckP0Right:
 
 NoInput:
 
-    ;calculations to update position for next frame
+    ;calculations to update position for next frame--------------------------------------------------
 UpdateBomberPosition:
     lda BomberYPos              ;load Bomber Y position to acc
     clc                         ;clear the carry flag
@@ -282,7 +302,7 @@ ResetBomberPosition:            ;resets Bomber Y position back to the top of the
 
 EndPositionUpdate:      ;fallback for position update code
 
-    ;check for object collision
+    ;check for object collision----------------------------------------------------------------------
 CheckCollisionP0P1:
     lda #%10000000      ;CXPPMM bit 7 detects P0 and P1 collision
     bit CXPPMM          ;check CXPPMM with the above pattern
@@ -307,7 +327,7 @@ EndCollisionCheck:      ;collision check fallback
     ;loop new frame
     jmp StartFrame
 
-    ;subroutine to handle sprite X offset
+    ;subroutine to handle sprite X offset----------------------------------------------------------
     ;A is the target offset position, 
     ;Y is the object type (0: Player0 1: Player1 2: missile0 3: missile1 4: ball)
 SetObjectXPos subroutine
@@ -325,13 +345,13 @@ DivideLoop
     sta RESP0,Y     ;fix object in 15 step intervals
     rts
 
-    ;Game over Subroutine
+    ;Game over Subroutine-------------------------------------------------------------------------
 GameOver subroutine
     lda #$30
     sta COLUBK
     rts
 
-    ;subroutine to generate Linear Feedback Shift Register random number
+    ;subroutine to generate Linear Feedback Shift Register random number--------------------------
     ;generate a random number
     ;divide the random by 4 to match river width
     ;add 30 to compensate for left playfield
@@ -359,7 +379,7 @@ GetRandomBomberPosition subroutine
 
     rts
 
-    ;Subroutine to handle scoreboard digits
+    ;Subroutine to handle scoreboard digits---------------------------------------------------------------------
     ;convert the top and bottom nybbles into the score and timer offset
     ;each digit is 5 bytes tall
     ;for low nybble multiplication of 5 is required
@@ -390,7 +410,11 @@ PrepareScoreLoop:             ;loop twice, first 1 then 0
     dex
     bpl PrepareScoreLoop      ;to prepare score loop
     rts
-    ;ROM lookup tables
+
+Sleep12Cycles subroutine
+    rts
+
+    ;ROM lookup tables-----------------------------------------------------------------------
 JetSprite:
     .byte #%00000000
     .byte #%01010100;$1E
@@ -554,7 +578,7 @@ Digits:
     .byte %01000100          ; #   #
     .byte %01000100          ; #   #
 
-    ;end of ROM
+    ;end of ROM------------------------------------------------------------------
     org $FFFC
     .word reset
     .word reset
