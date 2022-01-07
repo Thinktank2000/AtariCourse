@@ -16,7 +16,8 @@ JetSpritePtr       word       ;Player 0 sprite pointer
 JetColourPtr       word       ;player 0 colour pointer
 BomberSpritePtr    word       ;Player 1 sprite pointer
 BomberColourPtr    word       ;player 1 colour pointer
-JetAnimOffset byte       ;player 0 frame offset
+JetAnimOffset      byte       ;player 0 frame offset
+Random             byte       ;set random number
 
     ;define constants
 JET_HEIGHT = 9             ;Player 0 sprite height
@@ -39,6 +40,8 @@ reset:
     sta BomberYPos   ;BomberYPos = 83
     lda #65
     sta BomberXPos   ;BomberXPos = 65
+    lda #%11010100
+    sta Random       ;Random = $D4
 
     ;initialize pointers
     lda #<JetSprite
@@ -100,7 +103,6 @@ StartFrame:
     ;turn off VBLANK
     lda #0
     sta VBLANK
-
 
     ;display 96 visible scanlines (2 line kernel)
 VisibleLine:
@@ -165,7 +167,7 @@ DrawSpriteP1:
     lda #0
     sta JetAnimOffset       ;reset jet animation
 
-    ;display 30 lines of overscan
+
     lda #2
     sta VBLANK    ;turn on VBLANK
 
@@ -221,9 +223,7 @@ UpdateBomberPosition:
     jmp EndPositionUpdate       ;jump to fallback
 
 ResetBomberPosition:            ;resets Bomber Y position back to the top of the screen
-    lda #96
-    sta BomberYPos
-    ;TODO set BomberXPos to random number
+    jsr GetRandomBomberPosition ;call subroutine for random bomber x position
 
 EndPositionUpdate:      ;fallback for position update code
 
@@ -249,6 +249,33 @@ DivideLoop
     rts
 
 
+    ;subroutine to generate Linear Feedback Shift Register random number
+    ;generate a random number
+    ;divide the random by 4 to match river width
+    ;add 30 to compensate for left playfield
+GetRandomBomberPosition subroutine
+    lda Random
+    asl
+    eor Random
+    asl
+    eor Random
+    asl
+    asl
+    eor Random
+    asl
+    rol Random               ; performs a series of shifts and bit operations
+
+    lsr
+    lsr                      ; divide the value by 4 with 2 right shifts
+    sta BomberXPos           ; save it to the variable BomberXPos
+    lda #30
+    adc BomberXPos           ; adds 30 + BomberXPos to compensate for left PF
+    sta BomberXPos           ; and sets the new value to the bomber x-position
+
+    lda #96
+    sta BomberYPos           ; set the y-position to the top of the screen
+
+    rts
 
     ;ROM lookup tables
 JetSprite:
@@ -309,13 +336,13 @@ JetTurnColour:
 BomberColour:
     .byte #$00
     .byte #$00
-    .byte #$1E
-    .byte #$1E
-    .byte #$1E
-    .byte #$1E
-    .byte #$1E
-    .byte #$1E
-    .byte #$1E
+    .byte #$FF
+    .byte #$FF
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$40
+    .byte #$0F
 
     ;end of ROM
     org $FFFC
