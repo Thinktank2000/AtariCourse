@@ -8,38 +8,44 @@ AUDF1                    0018
 AUDV0                    0019                  
 AUDV1                    001a                  
 BOMBER_HEIGHT            0009              (R )
-BomberColour             f1e4              (R )
+BomberColour             f239              (R )
 BomberColourPtr          008a              (R )
-BomberSprite             f1c9              (R )
+BomberSprite             f21e              (R )
 BomberSpritePtr          0088              (R )
 BomberXPos               0082              (R )
 BomberYPos               0083              (R )
-CheckP0Down              f14d              (R )
-CheckP0Left              f15a              (R )
-CheckP0Right             f167              (R )
-CheckP0Up                f140                  
+CheckCollisionP0P1       f1b9                  
+CheckCollisionP0PF       f1c2              (R )
+CheckP0Down              f183              (R )
+CheckP0Left              f190              (R )
+CheckP0Right             f19d              (R )
+CheckP0Up                f176                  
+CollisionP0P1            f1cb              (R )
+CollisionP0PF            f1ce              (R )
 COLUBK                   0009              (R )
 COLUP0                   0006              (R )
 COLUP1                   0007              (R )
 COLUPF                   0008              (R )
 CTRLPF                   000a              (R )
 CXBLPF                   0006                  
-CXCLR                    002c                  
+CXCLR                    002c              (R )
 CXM0FB                   0004                  
 CXM0P                    0000                  
 CXM1FB                   0005                  
 CXM1P                    0001                  
-CXP0FB                   0002                  
+CXP0FB                   0002              (R )
 CXP1FB                   0003                  
-CXPPMM                   0007                  
-DivideLoop               f189              (R )
-DrawSpriteP0             f0d2              (R )
-DrawSpriteP1             f0ea              (R )
+CXPPMM                   0007              (R )
+DivideLoop               f1d9              (R )
+DrawSpriteP0             f108              (R )
+DrawSpriteP1             f120              (R )
 ENABL                    001f                  
 ENAM0                    001d                  
 ENAM1                    001e                  
-EndPositionUpdate        f183              (R )
-GetRandomBomberPosition  f19a              (R )
+EndCollisionCheck        f1d1              (R )
+EndPositionUpdate        f1b9              (R )
+GameOver                 f1ea              (R )
+GetRandomBomberPosition  f1ef              (R )
 GRP0                     001b              (R )
 GRP1                     001c              (R )
 HMBL                     0024                  
@@ -55,22 +61,22 @@ INPT2                    000a
 INPT3                    000b                  
 INPT4                    000c                  
 INPT5                    000d                  
-InsideBomberSprite       f0e0                  
-InsideJetSprite          f0c8                  
+InsideBomberSprite       f116                  
+InsideJetSprite          f0fe                  
 INTIM                    0284                  
 JET_HEIGHT               0009              (R )
 JetAnimOffset            008c              (R )
-JetColour                f1d2              (R )
+JetColour                f227              (R )
 JetColourPtr             0086              (R )
-JetSprite                f1b8              (R )
+JetSprite                f20d              (R )
 JetSpritePtr             0084              (R )
-JetSpriteTurn            f1c1                  
-JetTurnColour            f1db                  
+JetSpriteTurn            f216                  
+JetTurnColour            f230                  
 JetXPos                  0080              (R )
 JetYPos                  0081              (R )
-LineLoop                 f0c8              (R )
+LineLoop                 f0fe              (R )
 NO_ILLEGAL_OPCODES       0000 ????         (R )
-NoInput                  f174              (R )
+NoInput                  f1aa              (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
 PF0                      000d              (R )
@@ -81,7 +87,7 @@ REFP0                    000b
 REFP1                    000c                  
 RESBL                    0014                  
 reset                    f000              (R )
-ResetBomberPosition      f180              (R )
+ResetBomberPosition      f1b6              (R )
 RESM0                    0012                  
 RESM1                    0013                  
 RESMP0                   0028                  
@@ -89,7 +95,7 @@ RESMP1                   0029
 RESP0                    0010              (R )
 RESP1                    0011                  
 RSYNC                    0003                  
-SetObjectXPos            f186              (R )
+SetObjectXPos            f1d6              (R )
 StartFrame               f03e              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
@@ -107,14 +113,14 @@ TIM64T                   0296
 TIM8I                    029d                  
 TIM8T                    0295                  
 TIMINT                   0285                  
-UpdateBomberPosition     f174                  
+UpdateBomberPosition     f1aa                  
 VBLANK                   0001              (R )
 VDELBL                   0027                  
 VDELP0                   0025                  
 VDELP1                   0026                  
 VERSION_MACRO            006d                  
 VERSION_VCS              006b                  
-VisibleLine              f0ae                  
+VisibleLine              f0e4                  
 VSYNC                    0000              (R )
 WSYNC                    0002              (R )
 --- End of Symbol List.

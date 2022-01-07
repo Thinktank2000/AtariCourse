@@ -104,6 +104,18 @@ StartFrame:
     lda #0
     sta VBLANK
 
+    ;display scoreboard lines
+    lda #0         ;clear TIA registers
+    sta PF0
+    sta PF1
+    sta PF2
+    sta GRP0
+    sta GRP1
+    sta COLUPF
+    REPEAT 20
+        sta WSYNC  ;display 20 scoreboard scanlines
+    REPEND
+
     ;display 96 visible scanlines (2 line kernel)
 VisibleLine:
     lda #$84
@@ -124,7 +136,7 @@ VisibleLine:
     lda #0
     sta PF2       ; setting PF2 bit pattern
 
-    ldx #96      ;X counts the remaining number of scanlines
+    ldx #84      ;X counts the remaining number of scanlines
 LineLoop:
 InsideJetSprite:
     txa                     ;transfer x to acc
@@ -227,6 +239,28 @@ ResetBomberPosition:            ;resets Bomber Y position back to the top of the
 
 EndPositionUpdate:      ;fallback for position update code
 
+    ;check for object collision
+CheckCollisionP0P1:
+    lda #%10000000      ;CXPPMM bit 7 detects P0 and P1 collision
+    bit CXPPMM          ;check CXPPMM with the above pattern
+    bne CollisionP0P1   ;collision between P0 and P1
+    jmp CheckCollisionP0PF
+
+CheckCollisionP0PF:
+    lda #%10000000      ;CXP0FB bit 7 detects P0 and PF collision
+    bit CXP0FB          ;checks CXP0FB with the abover pattern
+    bne CollisionP0PF
+    jmp EndCollisionCheck
+
+CollisionP0P1:
+    jsr GameOver        ;game over
+
+CollisionP0PF:
+    jsr GameOver
+
+EndCollisionCheck:      ;collision check fallback
+    sta CXCLR
+
     ;loop new frame
     jmp StartFrame
 
@@ -248,6 +282,11 @@ DivideLoop
     sta RESP0,Y     ;fix object in 15 step intervals
     rts
 
+    ;Game over Subroutine
+GameOver subroutine
+    lda #$30
+    sta COLUBK
+    rts
 
     ;subroutine to generate Linear Feedback Shift Register random number
     ;generate a random number
@@ -292,8 +331,8 @@ JetSprite:
 
 JetSpriteTurn:
     .byte #%00000000;$1E
-    .byte #%01010100;$1E
-    .byte #%01010100;$40
+    .byte #%00101000;$1E
+    .byte #%00111000;$40
     .byte #%00111000;$40
     .byte #%00010000;$40
     .byte #%00010000;$40
