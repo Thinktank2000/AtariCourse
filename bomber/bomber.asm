@@ -18,10 +18,18 @@ BomberSpritePtr    word       ;Player 1 sprite pointer
 BomberColourPtr    word       ;player 1 colour pointer
 JetAnimOffset      byte       ;player 0 frame offset
 Random             byte       ;set random number
+ScoreSprite        byte       ;store the bit pattern for the score sprite
+TimerSprite        byte       ;score the bit pattern for the timer sprite
+Score              byte       ;2 digit score variable stored as BCD
+Timer              byte       ;2 digit timer variable stored as BCD
+Temp               byte       ;Temporary variable
+OnesDigitOffset    word       ;offset for score ones digit
+TensDigitOffset    word       ;offset for score tens digit
 
     ;define constants
 JET_HEIGHT = 9             ;Player 0 sprite height
-BOMBER_HEIGHT = 9          ;PLayer 1 sprite height
+BOMBER_HEIGHT = 9          ;Player 1 sprite height
+DIGIT_HEIGHT = 5           ;Scoreboard height
 
 
     ;start of ROM at $F000
@@ -42,6 +50,9 @@ reset:
     sta BomberXPos   ;BomberXPos = 65
     lda #%11010100
     sta Random       ;Random = $D4
+    lda #0
+    sta Score
+    sta Timer        ;score and timer = 0
 
     ;initialize pointers
     lda #<JetSprite
@@ -71,14 +82,16 @@ StartFrame:
     ;calculations and tasks pre VBLANK
     lda JetXPos
     ldy #0
-    jsr SetObjectXPos       ;set player 0 horizontal position
+    jsr SetObjectXPos          ;set player 0 horizontal position
 
     lda BomberXPos
     ldy #1
-    jsr SetObjectXPos       ;set player 1 horizontal position
+    jsr SetObjectXPos          ;set player 1 horizontal position
+
+    jsr CalculateDigitOffset   ;calculate the scoreboard offset
 
     sta WSYNC
-    sta HMOVE               ;apply the horizontal offsets previously set
+    sta HMOVE                  ;apply the horizontal offsets previously set
 
 
     ;display VSYNC and VBLANK
@@ -105,16 +118,46 @@ StartFrame:
     sta VBLANK
 
     ;display scoreboard lines
-    lda #0         ;clear TIA registers
+    lda #0              ;clear TIA registers
     sta PF0
     sta PF1
     sta PF2
     sta GRP0
     sta GRP1
+    lda #$1C            ;set scoreboard colour to white
     sta COLUPF
-    REPEAT 20
-        sta WSYNC  ;display 20 scoreboard scanlines
-    REPEND
+    lda #%00000000
+    sta CTRLPF          ;disable playfield reflection
+    ldx #DIGIT_HEIGHT   ;store 5 in X
+
+ScoreDigitLoop:
+    ldy TensDigitOffset ;get the tens digit offset for the score
+    lda Digits,Y        ;load sprite
+    and #$F0            ;mask the graphics for ones digit
+    sta ScoreSprite     ;score the tens digit pattern
+
+    ldy OnesDigitOffset
+    lda Digits,Y 
+    and #$0F
+    ora ScoreSprite     ;merge ones and tens into one sprite
+    sta ScoreSprite
+    sta WSYNC           ;wait for new scanline
+    sta PF1             ;update the playfield
+
+    ldy TensDigitOffset+1
+    lda Digits,Y 
+    and #$F0
+    sta TimerSprite
+
+    ldy OnesDigitOffset+1
+    lda Digits,Y 
+    and #$0F
+    ora TimerSprite
+    sta TimerSprite
+
+    dex                 ;X--
+    bne ScoreDigitLoop  ;branch back to ScoreDigitLoop if dex != 0
+
 
     ;display 96 visible scanlines (2 line kernel)
 VisibleLine:
@@ -316,6 +359,37 @@ GetRandomBomberPosition subroutine
 
     rts
 
+    ;Subroutine to handle scoreboard digits
+    ;convert the top and bottom nybbles into the score and timer offset
+    ;each digit is 5 bytes tall
+    ;for low nybble multiplication of 5 is required
+    ;left shift to multiply by two
+    ;right shift to divide
+
+CalculateDigitOffset subroutine
+    ldx #1                    ;loop counter
+PrepareScoreLoop:             ;loop twice, first 1 then 0
+    lda Score,X               ;Score + 1 = timer
+    and #$0F                  ;remove the tens digit by masking 4 bits
+    sta Temp                  ;Save the value in a temporary variable
+    asl                       ;shift left twice and add N for multiplication by 5
+    asl
+    adc Temp
+    sta OnesDigitOffset,X 
+
+    lda Score,X 
+    and #$F0
+    lsr 
+    lsr
+    sta Temp 
+    lsr
+    lsr
+    adc Temp
+    sta TensDigitOffset,X          
+
+    dex
+    bpl PrepareScoreLoop      ;to prepare score loop
+    rts
     ;ROM lookup tables
 JetSprite:
     .byte #%00000000
@@ -382,6 +456,103 @@ BomberColour:
     .byte #$40
     .byte #$40
     .byte #$0F
+
+Digits:
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %00110011          ;  ##  ##
+    .byte %00010001          ;   #   #
+    .byte %01110111          ; ### ###
+
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+    .byte %00010001          ;   #   #
+
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+    .byte %00010001          ;   #   #
+    .byte %01110111          ; ### ###
+
+    .byte %00100010          ;  #   #
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+
+    .byte %01110111          ; ### ###
+    .byte %01010101          ; # # # #
+    .byte %01100110          ; ##  ##
+    .byte %01010101          ; # # # #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01000100          ; #   #
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+
+    .byte %01100110          ; ##  ##
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+    .byte %01010101          ; # # # #
+    .byte %01100110          ; ##  ##
+
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01110111          ; ### ###
+
+    .byte %01110111          ; ### ###
+    .byte %01000100          ; #   #
+    .byte %01100110          ; ##  ##
+    .byte %01000100          ; #   #
+    .byte %01000100          ; #   #
 
     ;end of ROM
     org $FFFC
