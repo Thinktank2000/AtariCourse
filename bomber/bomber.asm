@@ -12,6 +12,8 @@ JetXPos            byte       ;player 0 X position
 JetYPos            byte       ;player 0 Y position
 BomberXPos         byte       ;player 1 X position
 BomberYPos         byte       ;player 1 Y position
+MissileXPos        byte       ;missile X position
+MissileYPos        byte       ;missile Y position
 JetSpritePtr       word       ;Player 0 sprite pointer
 JetColourPtr       word       ;player 0 colour pointer
 BomberSpritePtr    word       ;Player 1 sprite pointer
@@ -55,6 +57,18 @@ reset:
     lda #0
     sta Score
     sta Timer        ;score and timer = 0
+
+    ;declare missile macro-----------------------------------------------
+    MAC DRAW_MISSILE
+        lda #%00000000
+        cpx MissileYPos          ;compare current scanline to missile y position
+        bne SkipMissileDraw      ;skip draw if not equal
+DrawMissile:
+        lda #%00000010           ;enable missile 0 display
+        inc MissileYPos     
+SkipMissileDraw:                
+        sta ENAM0 ;store the value in the missile 0 TIA register
+    ENDM
 
     ;initialize pointers------------------------------------------------
     lda #<JetSprite
@@ -100,9 +114,15 @@ StartFrame:
     lda JetXPos
     ldy #0
     jsr SetObjectXPos          ;set player 0 horizontal position
+
     lda BomberXPos
     ldy #1
     jsr SetObjectXPos          ;set player 1 horizontal position
+
+    lda MissileXPos
+    ldy #2
+    jsr SetObjectXPos          ;set missile horizontal position
+
     jsr CalculateDigitOffset   ;calculate the scoreboard offset
     sta WSYNC
     sta HMOVE                  ;apply the horizontal offsets previously set
@@ -181,8 +201,10 @@ ScoreDigitLoop:
 VisibleLine:
     lda TerrainColour
     sta COLUPF    ;set the terrain colour to TerrainColour
+
     lda RiverColour
     sta COLUBK    ;set the river colour to RiverColour  
+
     lda %00000001
     sta CTRLPF    ;enable playfield reflection
     lda #$F0
@@ -193,12 +215,15 @@ VisibleLine:
     sta PF2       ; setting PF2 bit pattern
 
     ldx #85      ;X counts the remaining number of scanlines
+
 LineLoop:
+    DRAW_MISSILE    ;assembler macro to draw missile
+
 InsideJetSprite:
     txa                     ;transfer x to acc
     sec                     ;set carry flag for subtraction
     sbc JetYPos             ;subtract sprite Y coord
-    cmp JET_HEIGHT          ;compare with jet height
+    cmp #JET_HEIGHT          ;compare with jet height
     bcc DrawSpriteP0        ;if result < SpriteHeight call draw routine
     lda #0                  ;else, load 0
 
@@ -217,7 +242,7 @@ InsideBomberSprite:
     txa                     ;transfer x to acc
     sec                     ;set carry flag for subtraction
     sbc BomberYPos             ;subtract sprite Y coord
-    cmp BOMBER_HEIGHT     ;compare with jet height
+    cmp #BOMBER_HEIGHT     ;compare with jet height
     bcc DrawSpriteP1        ;if result < SpriteHeight call draw routine
     lda #0                  ;else, load 0
 
@@ -254,6 +279,7 @@ CheckP0Up:
     lda JetYPos     ;if up isnt being pressed skip to down
     cmp #70
     bpl CheckP0Right
+P0UpPressed:
     inc JetYPos
     lda #0
     sta JetAnimOffset   ;reset animation
@@ -265,6 +291,7 @@ CheckP0Down:
     lda JetYPos
     cmp #5
     bmi CheckP0Left
+P0DownPressed:
     dec JetYPos
     lda #0
     sta JetAnimOffset   ;reset animation
@@ -276,21 +303,36 @@ CheckP0Left:
     lda JetXPos
     cmp #35
     bmi CheckP0Right
+P0LeftPressed:
     dec JetXPos
-    lda JET_HEIGHT      ;9
+    lda #JET_HEIGHT      ;9
     sta JetAnimOffset   ;set the animation offset to the next frame
 
 CheckP0Right:
     lda #%10000000      ;player 0 joystick right
     bit SWCHA
-    bne NoInput         ;fallback to no input
+    bne CheckButtonPressed         ;fallback to button press
     lda JetXPos
     cmp #100
-    bpl NoInput
+    bpl CheckButtonPressed
+P0RightPressed:
     inc JetXPos
-
-    lda JET_HEIGHT      ;9
+    lda #JET_HEIGHT      ;9
     sta JetAnimOffset   ;set the animation offset to the next frame
+
+CheckButtonPressed:
+    lda #%10000000
+    bit INPT4           ;if button is pressed and not equal end input check
+    bne NoInput
+ButtonPressed:
+    lda JetXPos
+    clc
+    adc #4 
+    sta MissileXPos     ;spawn missile at jet x position
+    lda JetYPos
+    clc
+    adc #5
+    sta MissileYPos     ;spawn missile at jet y position
 
 NoInput:
 
@@ -301,7 +343,6 @@ UpdateBomberPosition:
     cmp #0                      ;compare Y position to 0
     bmi ResetBomberPosition     ;branch to ResetBomberPosition if the number is a negative
     dec BomberYPos              ;decrement the bomber y position
-    dec BomberYPos              ;decrement faster for difficulty
     jmp EndPositionUpdate       ;jump to fallback
 
 ResetBomberPosition:            ;resets Bomber Y position back to the top of the screen
@@ -315,10 +356,26 @@ CheckCollisionP0P1:
     bit CXPPMM          ;check CXPPMM with the above pattern
     bne CollisionP0P1   ;collision between P0 and P1
     jsr SetTerrainRiverColour
-    jmp EndCollisionCheck
+    jmp CheckCollisionM0P1
 
 CollisionP0P1:
     jsr GameOver        ;game over
+
+CheckCollisionM0P1:
+    lda #%10000000
+    bit CXM0P
+    bne M0P1Collided
+    jmp EndCollisionCheck
+
+M0P1Collided:
+    sed
+    lda Score
+    clc
+    adc #1
+    sta Score
+    cld
+    lda #0
+    sta MissileYPos
 
 EndCollisionCheck:      ;collision check fallback
     sta CXCLR
@@ -381,11 +438,6 @@ GetRandomBomberPosition subroutine
 
 SetScoreValues:
     sed                     ;set decimal mode
-    lda Score
-    clc
-    adc #1
-    sta Score               ;add 1 to score (bcd doesnt like inc lol)
-
     lda Timer
     clc
     adc #1
