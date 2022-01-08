@@ -25,6 +25,8 @@ Timer              byte       ;2 digit timer variable stored as BCD
 Temp               byte       ;Temporary variable
 OnesDigitOffset    word       ;offset for score ones digit
 TensDigitOffset    word       ;offset for score tens digit
+TerrainColour      byte       ;grass pattern colour
+RiverColour        byte       ;river pattern colour
 
     ;define constants
 JET_HEIGHT = 9             ;Player 0 sprite height
@@ -177,21 +179,16 @@ ScoreDigitLoop:
 
     ;display 96 visible scanlines (2 line kernel)-----------------------------
 VisibleLine:
-    lda #$84
-    sta COLUBK    ;set background to pale blue
-
-    lda #$C2
-    sta COLUPF    ;set playfield to green
-
+    lda TerrainColour
+    sta COLUPF    ;set the terrain colour to TerrainColour
+    lda RiverColour
+    sta COLUBK    ;set the river colour to RiverColour  
     lda %00000001
     sta CTRLPF    ;enable playfield reflection
-
     lda #$F0
-    sta PF0
-                  ; setting PF0 bit pattern
+    sta PF0       ; setting PF0 bit pattern
     lda #$FC
-    sta PF1
-                  ; setting PF1 bit pattern
+    sta PF1       ; setting PF1 bit pattern
     lda #0
     sta PF2       ; setting PF2 bit pattern
 
@@ -253,7 +250,10 @@ DrawSpriteP1:
 CheckP0Up:
     lda #%00010000      ;player 0 joystick up
     bit SWCHA
-    bne CheckP0Down     ;if up isnt being pressed skip to down
+    bne CheckP0Down
+    lda JetYPos     ;if up isnt being pressed skip to down
+    cmp #70
+    bpl CheckP0Right
     inc JetYPos
     lda #0
     sta JetAnimOffset   ;reset animation
@@ -262,6 +262,9 @@ CheckP0Down:
     lda #%00100000      ;Player 0 joystick down
     bit SWCHA
     bne CheckP0Left     ;skip to left if not pressed
+    lda JetYPos
+    cmp #5
+    bmi CheckP0Left
     dec JetYPos
     lda #0
     sta JetAnimOffset   ;reset animation
@@ -270,19 +273,22 @@ CheckP0Left:
     lda #%01000000      ;Player 0 joystick left
     bit SWCHA
     bne CheckP0Right    ;skip to right if not pressed
+    lda JetXPos
+    cmp #35
+    bmi CheckP0Right
     dec JetXPos
     lda JET_HEIGHT      ;9
     sta JetAnimOffset   ;set the animation offset to the next frame
 
 CheckP0Right:
     lda #%10000000      ;player 0 joystick right
-    sta TimerSprite
-
-    jsr Sleep12Cycles
-
     bit SWCHA
     bne NoInput         ;fallback to no input
+    lda JetXPos
+    cmp #100
+    bpl NoInput
     inc JetXPos
+
     lda JET_HEIGHT      ;9
     sta JetAnimOffset   ;set the animation offset to the next frame
 
@@ -295,6 +301,7 @@ UpdateBomberPosition:
     cmp #0                      ;compare Y position to 0
     bmi ResetBomberPosition     ;branch to ResetBomberPosition if the number is a negative
     dec BomberYPos              ;decrement the bomber y position
+    dec BomberYPos              ;decrement faster for difficulty
     jmp EndPositionUpdate       ;jump to fallback
 
 ResetBomberPosition:            ;resets Bomber Y position back to the top of the screen
@@ -307,19 +314,11 @@ CheckCollisionP0P1:
     lda #%10000000      ;CXPPMM bit 7 detects P0 and P1 collision
     bit CXPPMM          ;check CXPPMM with the above pattern
     bne CollisionP0P1   ;collision between P0 and P1
-    jmp CheckCollisionP0PF
-
-CheckCollisionP0PF:
-    lda #%10000000      ;CXP0FB bit 7 detects P0 and PF collision
-    bit CXP0FB          ;checks CXP0FB with the abover pattern
-    bne CollisionP0PF
+    jsr SetTerrainRiverColour
     jmp EndCollisionCheck
 
 CollisionP0P1:
     jsr GameOver        ;game over
-
-CollisionP0PF:
-    jsr GameOver
 
 EndCollisionCheck:      ;collision check fallback
     sta CXCLR
@@ -348,7 +347,10 @@ DivideLoop
     ;Game over Subroutine-------------------------------------------------------------------------
 GameOver subroutine
     lda #$30
-    sta COLUBK
+    sta TerrainColour              ;set terrain colour to red
+    sta RiverColour                ;set river colour to red
+    lda #0
+    sta Score                      ;score = 0
     rts
 
     ;subroutine to generate Linear Feedback Shift Register random number--------------------------
@@ -377,7 +379,19 @@ GetRandomBomberPosition subroutine
     lda #96
     sta BomberYPos           ; set the y-position to the top of the screen
 
-    rts
+SetScoreValues:
+    sed                     ;set decimal mode
+    lda Score
+    clc
+    adc #1
+    sta Score               ;add 1 to score (bcd doesnt like inc lol)
+
+    lda Timer
+    clc
+    adc #1
+    sta Timer               ;add 1 to timer
+
+    cld                     ;disable BCD mode      
 
     ;Subroutine to handle scoreboard digits---------------------------------------------------------------------
     ;convert the top and bottom nybbles into the score and timer offset
@@ -412,6 +426,13 @@ PrepareScoreLoop:             ;loop twice, first 1 then 0
     rts
 
 Sleep12Cycles subroutine
+    rts
+
+SetTerrainRiverColour subroutine
+    lda #$C2
+    sta TerrainColour       ;set colour to green
+    lda #$84
+    sta RiverColour         ;set river to blue
     rts
 
     ;ROM lookup tables-----------------------------------------------------------------------
