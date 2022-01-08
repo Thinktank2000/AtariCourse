@@ -124,6 +124,9 @@ StartFrame:
     jsr SetObjectXPos          ;set missile horizontal position
 
     jsr CalculateDigitOffset   ;calculate the scoreboard offset
+
+    jsr GenerateJetSound
+
     sta WSYNC
     sta HMOVE                  ;apply the horizontal offsets previously set
 
@@ -487,6 +490,25 @@ SetTerrainRiverColour subroutine
     sta RiverColour         ;set river to blue
     rts
 
+GenerateJetSound subroutine
+    lda #1
+    sta AUDV0               ;set volume register to 1
+
+    lda JetYPos             ;load y position into A
+    lsr
+    lsr
+    lsr                     ;divide JetYPos by 8
+    sta Temp                ;store in Temp
+    lda #31                 ;load 31 into A
+    sec                     ;set carry flag
+    sbc Temp                ;subtract JetYPos from 31
+    sta AUDF0               ;set new pitch
+
+    lda #8 
+    sta AUDC0               ;set tone register to 4
+
+
+    rts
     ;ROM lookup tables-----------------------------------------------------------------------
 JetSprite:
     .byte #%00000000
