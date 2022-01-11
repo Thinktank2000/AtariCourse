@@ -1030,14 +1030,14 @@
     492  f2ce
     493  f2ce				   GenerateJetSound subroutine
     494  f2ce		       a9 01		      lda	#1
-    495  f2d0		       85 19		      sta	AUDV0	;set volume register to 3
+    495  f2d0		       85 19		      sta	AUDV0	;set volume register to 1
     496  f2d2
     497  f2d2		       a5 81		      lda	JetYPos	;load y position into A
     498  f2d4		       4a		      lsr
     499  f2d5		       4a		      lsr
     500  f2d6		       4a		      lsr		;divide JetYPos by 8
     501  f2d7		       85 94		      sta	Temp	;store in Temp
-    502  f2d9		       a9 19		      lda	#25	;load 31 into A
+    502  f2d9		       a9 1f		      lda	#31	;load 31 into A
     503  f2db		       38		      sec		;set carry flag
     504  f2dc		       e5 94		      sbc	Temp	;subtract JetYPos from 31
     505  f2de		       85 17		      sta	AUDF0	;set new pitch
